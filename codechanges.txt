@@ -1,0 +1,141 @@
+RANCH LIFE — CODE CHANGE LOG
+============================
+
+[2026-04-17] REVERTED all auction layout changes from past 5 prompts
+- Removed #modal.mode-auction and #modal.mode-auction #modal-content CSS rules
+- Restored original live auction innerHTML: max-height:180px on live-log, display:none on live-sold and live-continue
+- Restored live-continue to use style.display='block' (not disabled/enabled)
+- Removed $('modal').classList.add/remove('mode-auction') calls from runSellAuction and closeModal
+
+
+
+[2026-04-17] Auction modal: CSS Grid with explicit row heights — buttons cannot move
+- Replaced flexbox approach with CSS Grid: grid-template-rows: auto auto 1fr 80px 48px
+- Rows 4 (sold) and 5 (button) are hard-coded pixel heights — grid track sizes are rigid, nothing can push them
+- Removed inner wrapper div; 5 elements are direct grid children (required for grid rows to apply)
+- #modal.mode-auction: height:500px fixed, overflow:hidden, padding:16px
+- #live-log row (1fr) absorbs all remaining space and scrolls internally
+
+
+
+[2026-04-17] Auction modal: lock height via mode-auction class
+- Root cause of button movement: #modal had no fixed height, so it resized as content grew, changing the modal's top position and thus the button's viewport position
+- Added #modal.mode-auction: height:500px; overflow:hidden; display:flex; flex-direction:column
+- Added #modal.mode-auction #modal-content: flex:1; display:flex; flex-direction:column; overflow:hidden; min-height:0
+- mode-auction class added to #modal at auction start, removed on closeModal() and Continue click
+- #live-log: flex:1; overflow-y:auto; min-height:0 — absorbs all remaining height
+- #live-sold: height:80px; flex-shrink:0 — pre-sized, never shifts button
+- Button: flex-shrink:0 at bottom of flex column — geometrically pinned
+
+
+
+[2026-04-17] Auction layout: fixed-height flex column so buttons never move
+- Wrapped auction modal content in a 420px fixed-height flex column
+- #live-log gets flex:1 overflow-y:auto — absorbs all remaining height, bids scroll within it
+- #live-sold gets fixed height:80px — pre-sized slot, appearing content no longer shifts button
+- Button always rendered with flex-shrink:0 at the bottom of the column
+
+
+
+[2026-04-17] Auction layout: fixed button jumping on bid updates
+- Root cause: #live-log used max-height:180px so it grew from 0 as bids were added, pushing buttons down
+- #live-log changed to fixed height:150px — always occupies same space regardless of bid count
+- #live-sold given min-height:72px so its slot is pre-reserved before the sold card appears
+- #live-continue always rendered (not display:none), starts disabled, enabled when auction ends
+- These three changes together keep the Continue button anchored throughout the sequence
+
+
+
+[2026-04-17] Home button removed; journal moved to topbar brand dropdown
+- Removed strip-home from #map-strip sidebar
+- #topbar-brand made clickable (cursor:pointer, hover/open border highlight)
+- Added #journal-dropdown absolutely positioned below brand: scrollable list of up to 40 events
+- G.toggleJournal(ev): populates dropdown body from G.events, toggles .open on brand + dropdown
+- G.closeJournal(): removes .open; called from G.tab(), G.showMap(), and global document click listener
+- #brand-chevron added below ranch name as visual affordance ("▼ Journal")
+- Dropdown stopPropagation prevents clicks inside from closing it immediately
+
+
+
+[2026-04-17] Double-click horse in Race tab opens Stables detail
+- Added ondblclick to horse cards in renderRace: calls G.tab('horses') then G.showHorseDetail(id)
+- Single click still selects the horse for racing as before
+
+
+
+[2026-04-17] Removed duplicate Map button from panel header
+- Removed #map-back-btn and its CSS from the content panel header
+- Sidebar strip map button (🗺️ Map in #map-strip) remains as the only map return control
+- #panel-title now the sole element in #panel-header; no spacing adjustment needed (flex already handles it)
+
+
+
+[2026-04-17] Tutorial text updated for new map UI
+- "tab" references replaced with map building names and icons (🔨 Auction Yard, 🐴 Stables, 🏁 Racetrack, 🌾 Breeding Barn)
+- "bottom" reference replaced with "top-right corner" for the Next Year button
+- All 5 tutorial steps updated
+
+
+
+[2026-04-17] Retire horse confirmation screen
+- Added G.confirmRetireHorse(id): shows modal with horse portrait, name, breed, age, wins, and warning text
+- "Yes, Retire" button calls G.retireHorse(id); "Cancel" returns to horse detail
+- Tutorial guard moved to confirmRetireHorse; retireHorse is now the confirmed action only
+- Retire button in horse detail now calls confirmRetireHorse instead of retireHorse directly
+
+
+
+[2026-04-17] Training bonus bar segment: gold → green
+- Speed and stamina stacked bonus segments changed from linear-gradient(#D4A017,#F39C12) to linear-gradient(#27AE60,#2ECC71)
+- Applies to both speed and stamina bars in showHorseDetail
+
+
+
+[2026-04-17] Topbar stats made wider
+- .tb-stat min-width: 72px → 100px; padding: 4px 18px 4px 13px; gap: 7px → 10px
+- .tb-stat-icon font-size: 22px → 28px
+
+
+[2026-04-17] Topbar stat icons enlarged
+- Extracted icon emoji from .tb-stat-lbl (was 8px inline) into a dedicated .tb-stat-icon element at font-size:22px
+- .tb-stat layout changed from column to row (icon left, value+label stacked right) with gap:7px
+- Added .tb-stat-text wrapper for the value/label column
+- Padding adjusted: 4px 12px 4px 9px to give the larger icon room
+- min-width increased from 60px to 72px to accommodate the wider row layout
+- Label text simplified (removed icon from label string since icon is now separate)
+
+[2026-04-17] Finish line: checkered marker + horse position alignment (revised)
+- Finish line moved to right:15% (≈left:85%); horse max lp=(t.pos/100)*90 so at trackPos=100, lp=90%, clearly past the 85% line
+- Horses visually cross finish when trackPos≈94 and end 5% past it at trackPos=100
+- Previous attempt (right:0 + 93%) left a 7% visual gap; this revision closes it
+- Added .race-finish-line div inside each .race-lane-bg with repeating-conic-gradient checkerboard
+- .race-finish-line uses top:-150%;height:400% so it extends above/below the bar as a visible pole
+- .race-lane-bg gets overflow:visible in race-focus mode so the tall finish line is not clipped
+- allArrived check (pos<100) and end condition unchanged — race ends when all trackPos reach 100
+
+[2026-04-17] Race focus mode: full-screen layout + Space key
+- Removed inline height:18px from race lane HTML so CSS rules can control sizing
+- #modal in race-focus: overflow:hidden, display:flex flex-direction:column height:100%
+- #modal-content in race-focus: flex:1 display:flex flex-direction:column overflow:hidden
+- Added #rf-wrap / #rf-header / #rf-controls HTML structure; .race-track is the flex-growing element
+- .race-lane in race-focus: flex:1 height:auto!important min-height:40px — lanes fill track vertically
+- .race-lane-bg, runner font sizes, mg-track, mg-dot all scaled up for full-screen mode
+- Space key bound via G.bindSpaceKey() when cursor starts; e.preventDefault() blocks page scroll
+- Space key unbound in finishRace(), closeModal(), and doRaceCheck() cleanup
+
+[2026-04-17] Race focus mode: initial implementation
+- Added #app.race-focus CSS class that hides #topbar and #main-layout
+- #modal-bg switches to position:fixed covering full viewport during race
+- #modal expands to 100% width/height with no border-radius in race-focus mode
+- G.renderMinigame() adds race-focus class to #app on every render
+- G.finishRace() removes race-focus before showing result card
+- G.closeModal() removes race-focus as safety net
+
+[2026-04-17] Two-mode map layout (MAP MODE / LOCATION FOCUS MODE)
+- #main-layout starts with class="map-mode"; clicking a location switches to "location-mode"
+- MAP MODE: #map-area fills 100%, #content-panel hidden, #map-full shown, #map-strip hidden
+- LOCATION MODE: #map-area collapses to 72px strip, #content-panel fills rest
+- #map-strip sidebar shows icon buttons for each location + map-return button
+- G.showMap() switches back to map-mode and clears active states
+- G.tab() updated to set location-mode, update strip active states, and update panel title
+- #map-back-btn added to panel header to return to map

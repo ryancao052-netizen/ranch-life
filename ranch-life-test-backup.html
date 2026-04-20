@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Ranch Life</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Georgia,serif;background:#2C1810;display:flex;justify-content:center;align-items:center;min-height:100vh}
+#app{width:420px;max-width:100vw;height:100vh;max-height:920px;background:#F5E6C8;display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+@media(min-width:500px){#app{border-radius:30px;height:880px}}
+#header{background:linear-gradient(180deg,#3D1C02,#6B3A2A);padding:14px 16px 10px;color:#F5E6C8;flex-shrink:0}
+#header h1{font-size:20px;color:#D4A017;text-shadow:1px 1px 2px rgba(0,0,0,.5)}
+.header-row{display:flex;justify-content:space-between;align-items:center}
+.header-sub{font-size:10px;color:#C4A882;margin-top:1px}
+.year-big{font-size:24px;color:#D4A017;font-weight:bold;text-align:right}
+.stats-bar{display:flex;justify-content:space-between;margin-top:8px;background:rgba(0,0,0,.2);border-radius:8px;padding:6px 8px}
+.stat-item{text-align:center;flex:1}
+.stat-val{font-size:13px;font-weight:bold;color:#F5E6C8}
+.stat-lbl{font-size:8px;color:#C4A882;margin-top:1px}
+#content{flex:1;overflow-y:auto;padding:12px;-webkit-overflow-scrolling:touch}
+#content::-webkit-scrollbar{width:4px}
+#content::-webkit-scrollbar-thumb{background:#C4A882;border-radius:2px}
+.btn{display:inline-block;padding:9px 16px;border-radius:8px;border:none;cursor:pointer;font-family:Georgia,serif;font-size:12px;font-weight:bold;transition:transform .1s,opacity .1s}
+.btn:active{transform:scale(.97);opacity:.85}
+.btn:disabled{opacity:.4;cursor:default;transform:none}
+.btn-primary{background:#8B4513;color:#fff}
+.btn-gold{background:linear-gradient(135deg,#D4A017,#B8860B);color:#3D1C02}
+.btn-green{background:#4A7C3F;color:#fff}
+.btn-danger{background:#A0302B;color:#fff}
+.btn-ghost{background:rgba(139,69,19,.12);color:#6B3A2A}
+.btn-sm{padding:5px 10px;font-size:10px}
+.btn-block{display:block;width:100%;text-align:center}
+#next-year-btn{background:linear-gradient(180deg,#8B4513,#6B3A2A);color:#D4A017;border:none;padding:12px;font-size:16px;font-family:Georgia,serif;font-weight:bold;cursor:pointer;width:100%;letter-spacing:.5px;flex-shrink:0}
+#next-year-btn:active{opacity:.8}
+#tab-bar{display:flex;background:#3D1C02;padding:5px 0 8px;flex-shrink:0}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;color:#C4A882;font-size:8px;cursor:pointer;padding:2px}
+.tab.active{color:#D4A017}
+.tab-icon{font-size:18px;margin-bottom:1px}
+.card{background:#fff;border-radius:12px;padding:12px;margin-bottom:9px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.horse-card{background:#fff;border-radius:12px;padding:10px;margin-bottom:8px;box-shadow:0 2px 5px rgba(0,0,0,.08);display:flex;align-items:center;cursor:pointer;transition:transform .1s;position:relative}
+.horse-card:active{transform:scale(.98)}
+.horse-card.fav{border-left:4px solid #D4A017}
+.horse-avatar{font-size:32px;margin-right:8px;line-height:1}
+.horse-info{flex:1;min-width:0}
+.horse-name{font-size:14px;font-weight:bold;color:#3D1C02}
+.horse-sub{font-size:10px;color:#8B6A5A;margin-top:1px}
+.horse-right{text-align:right;font-size:10px;color:#8B6A5A;flex-shrink:0;margin-left:6px}
+.sbar{margin:2px 0}
+.sbar-label{font-size:9px;color:#6B3A2A;margin-bottom:1px}
+.sbar-bg{height:6px;background:#E8D5B7;border-radius:3px;overflow:hidden}
+.sbar-fill{height:100%;border-radius:3px;transition:width .3s}
+.fill-speed{background:linear-gradient(90deg,#E74C3C,#F39C12)}
+.fill-health{background:linear-gradient(90deg,#27AE60,#2ECC71)}
+.fill-trained{background:linear-gradient(90deg,#3498DB,#2980B9)}
+.fill-stamina{background:linear-gradient(90deg,#8E44AD,#9B59B6)}
+.tag{display:inline-block;padding:1px 6px;border-radius:8px;font-size:9px;margin:1px 1px}
+.tag-m{background:#DDEEFF;color:#1565C0}
+.tag-f{background:#FFDDEE;color:#880E4F}
+.tag-foal{background:#F3E5F5;color:#6A1B9A}
+.tag-special{background:#E8F5E9;color:#1B5E20;font-weight:bold}
+.tag-fav{background:#FFF8E1;color:#B8860B}
+.ev{padding:8px 10px;margin-bottom:6px;border-radius:8px;font-size:11px;line-height:1.4}
+.ev-good{background:#E8F5E9;border-left:3px solid #27AE60;color:#1B5E20}
+.ev-bad{background:#FFEBEE;border-left:3px solid #C0392B;color:#7F0000}
+.ev-neutral{background:#FFF8E1;border-left:3px solid #D4A017;color:#5D4037}
+.ev-race{background:#E3F2FD;border-left:3px solid #1565C0;color:#0D47A1}
+.ev-death{background:#F3E5F5;border-left:3px solid #6A1B9A;color:#4A148C}
+.ev-auction{background:#FFF3E0;border-left:3px solid #E65100;color:#BF360C}
+.sec-title{font-size:16px;color:#3D1C02;font-weight:bold;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #D4A017}
+.sec-sub{font-size:12px;color:#3D1C02;font-weight:bold;margin:10px 0 6px}
+.empty{text-align:center;padding:30px 16px;color:#8B6A5A;font-size:12px}
+.empty .icon{font-size:40px;margin-bottom:6px}
+#modal-bg{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;z-index:100}
+#modal-bg.show{display:flex}
+#modal{background:#F5E6C8;width:100%;border-radius:22px 22px 0 0;padding:16px;max-height:85%;overflow-y:auto}
+#modal h2{color:#3D1C02;margin-bottom:10px;text-align:center;font-size:17px}
+#toast{position:absolute;top:100px;left:16px;right:16px;background:#3D1C02;color:#F5E6C8;padding:10px 12px;border-radius:10px;font-size:12px;text-align:center;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+#toast.show{opacity:1}
+#cutscene{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(44,24,16,.95);display:flex;align-items:center;justify-content:center;z-index:300;padding:20px}
+#cutscene.hidden{display:none}
+#cutscene-box{background:#F5E6C8;border-radius:18px;padding:24px 18px;max-width:380px;width:100%;text-align:center;max-height:90vh;overflow-y:auto}
+#cutscene-box h2{color:#3D1C02;margin-bottom:8px;font-size:18px}
+#cutscene-box p{color:#6B3A2A;font-size:13px;line-height:1.5;margin-bottom:12px}
+#cutscene-box input{width:100%;padding:9px;border:2px solid #D4A017;border-radius:8px;font-family:Georgia,serif;font-size:13px;text-align:center;margin-bottom:10px;background:#fff}
+.auction-lot{background:#fff;border-radius:12px;padding:12px;margin-bottom:9px;box-shadow:0 2px 6px rgba(0,0,0,.08);border:2px solid #E8D5B7}
+.bid-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:11px;border-bottom:1px solid #f0e6d4}
+.bid-row:last-child{border:none}
+.bidder-name{font-weight:bold;color:#3D1C02}
+.bid-amount{color:#D4A017;font-weight:bold}
+.ped-box{background:#FFF8E1;border:1px solid #E8D5B7;border-radius:8px;padding:6px;text-align:center;font-size:9px;margin:2px}
+.ped-box .name{font-weight:bold;color:#3D1C02;font-size:10px}
+.ped-box .coat{color:#8B6A5A}
+.money{color:#B8860B;font-weight:bold}
+.flex-row{display:flex;justify-content:space-between;align-items:center}
+.mt-sm{margin-top:6px}
+.mt-md{margin-top:12px}
+.text-center{text-align:center}
+.text-sm{font-size:11px}
+.text-xs{font-size:9px}
+.text-muted{color:#8B6A5A}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+select{width:100%;padding:7px;border-radius:8px;border:1px solid #D4A017;font-family:Georgia,serif;font-size:12px;background:#fff}
+.filter-bar{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap}
+.filter-btn{padding:4px 10px;border-radius:12px;border:1px solid #D4A017;background:#fff;font-family:Georgia,serif;font-size:10px;cursor:pointer;color:#6B3A2A}
+.filter-btn.active{background:#D4A017;color:#3D1C02;font-weight:bold}
+.race-track{background:#3D1C02;border-radius:10px;padding:10px;margin:10px 0;overflow:hidden}
+.race-lane{display:flex;align-items:center;margin:4px 0;height:24px;position:relative}
+.race-lane-bg{flex:1;height:8px;background:rgba(255,255,255,.15);border-radius:4px;position:relative;overflow:hidden}
+.race-runner{position:absolute;left:0;top:-8px;font-size:20px;transition:left .15s linear}
+.race-lane-label{font-size:9px;color:#C4A882;width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.year-summary{max-height:70vh;overflow-y:auto}
+.year-summary .sum-item{padding:6px 0;border-bottom:1px solid #E8D5B7;font-size:12px}
+.year-summary .sum-item:last-child{border:none}
+.fav-star{position:absolute;top:4px;right:4px;font-size:14px;cursor:pointer;z-index:2}
+.mg-track{height:28px;border-radius:6px;position:relative;overflow:hidden;margin:10px 0;cursor:pointer;background:#E8D5B7}
+.mg-green{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,#27AE60,#2ECC71);width:18%}
+.mg-yellow{position:absolute;left:18%;top:0;height:100%;background:linear-gradient(90deg,#F39C12,#F1C40F);width:52%}
+.mg-red{position:absolute;left:70%;top:0;height:100%;background:linear-gradient(90deg,#E74C3C,#C0392B);width:30%}
+.mg-cursor{position:absolute;top:0;height:100%;width:4px;background:#3D1C02;border-radius:2px;transition:none;pointer-events:none}
+.mg-check-row{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}
+.mg-dot{width:16px;height:16px;border-radius:50%;background:#E8D5B7;border:2px solid #C4A882;flex-shrink:0}
+.mg-dot.green{background:#27AE60;border-color:#1B5E20}
+.mg-dot.yellow{background:#F39C12;border-color:#B7770D}
+.mg-dot.red{background:#E74C3C;border-color:#922B21}
+.reel-wrap{overflow:hidden;border-radius:10px;border:2px solid #D4A017;margin:10px 0;position:relative}
+.reel-strip{display:flex;transition:transform 2.7s cubic-bezier(0.25,0.1,0.15,1.0)}
+.reel-card{flex-shrink:0;width:80px;height:90px;border-radius:8px;background:#fff;border:2px solid #E8D5B7;margin:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4px}
+.reel-card .r-icon{font-size:26px;line-height:1}
+.reel-card .r-name{font-size:9px;font-weight:bold;color:#3D1C02;margin-top:2px}
+.reel-card .r-sub{font-size:7px;color:#8B6A5A;margin-top:1px}
+.reel-card.winner{border:3px solid #D4A017;background:#FFF8E1;transform:scale(1.05);box-shadow:0 2px 8px rgba(212,160,23,.4)}
+.trait-header{background:linear-gradient(135deg,#FFF8E1,#F5E6C8);border:1px solid #D4A017;border-radius:10px;padding:10px 12px;margin-bottom:8px}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="cutscene"><div id="cutscene-box"><div id="cs-content"></div></div></div>
+<div id="header">
+<div class="header-row">
+<div><h1 id="title-display">Ranch Life</h1><div class="header-sub" id="ranch-name-disp"></div></div>
+<div><div class="year-big" id="year-disp">Year 1</div><div class="header-sub" style="text-align:right">Your Legacy</div></div>
+</div>
+<div class="stats-bar">
+<div class="stat-item"><div class="stat-val" id="money-disp">$6,500</div><div class="stat-lbl">Money</div></div>
+<div class="stat-item"><div class="stat-val" id="rep-disp">0</div><div class="stat-lbl">Rep</div></div>
+<div class="stat-item"><div class="stat-val" id="horse-disp">1/6</div><div class="stat-lbl">Horses</div></div>
+<div class="stat-item"><div class="stat-val" id="ranch-disp">Lv1</div><div class="stat-lbl">Ranch</div></div>
+</div>
+</div>
+<div id="content"></div>
+<button id="next-year-btn" onclick="G.confirmNextYear()">NEXT YEAR</button>
+<div id="tab-bar">
+<div class="tab active" data-tab="home" onclick="G.tab('home')"><div class="tab-icon">🏠</div>Home</div>
+<div class="tab" data-tab="horses" onclick="G.tab('horses')"><div class="tab-icon">🐴</div>Horses</div>
+<div class="tab" data-tab="auction" onclick="G.tab('auction')"><div class="tab-icon">🔨</div>Auction</div>
+<div class="tab" data-tab="race" onclick="G.tab('race')"><div class="tab-icon">🏁</div>Race</div>
+<div class="tab" data-tab="ranch" onclick="G.tab('ranch')"><div class="tab-icon">🏡</div>Ranch</div>
+<div class="tab" data-tab="legacy" onclick="G.tab('legacy')"><div class="tab-icon">🏆</div>Legacy</div>
+</div>
+<div id="modal-bg" onclick="G.closeModal(event)"><div id="modal"><div id="modal-content"></div></div></div>
+<div id="toast"></div>
+</div>
+<script>
+// ===== UTILS =====
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+const pct=v=>Math.min(100,Math.max(0,v));
+const $=id=>document.getElementById(id);
+const money=v=>{if(v>=1e6)return'$'+(v/1e6).toFixed(1)+'M';if(v>=1e4)return'$'+(v/1e3).toFixed(1)+'K';return'$'+v.toLocaleString()};
+
+// ===== NAME PARTS FOR BREEDING NAMES =====
+const NAME_PRE=['Thunder','Storm','Shadow','Golden','Silver','Dark','Iron','Royal','Wild','Lucky','Noble','Swift','Proud','Midnight','Crystal','Diamond','Star','Moon','Sun','Fire','Ice','Phantom','Mystic','Ancient','Silent'];
+const NAME_SUF=['dancer','runner','spirit','dream','glory','strike','blaze','heart','song','wind','fury','charm','reign','flight','legend','legacy','pride','storm','fire','light','shadow','mist','vale','born','call'];
+const CHAMP_NAMES=['Secretariat','Seabiscuit','Man O\' War','Citation','Affirmed','Seattle Slew','War Admiral','Whirlaway','Gallant Fox','Omaha','Count Fleet','Assault','American Pharoah','Justify','Ruffian','Zenyatta','Winx','Frankel','Black Caviar','Phar Lap','Kelso','Cigar','Curlin','Arrogate','Flightline'];
+
+function breedName(sireName,damName){
+  // Combo name: take prefix from sire, suffix from dam
+  let sWords=sireName.split(/(?=[A-Z])|[\s'-]+/).filter(Boolean);
+  let dWords=damName.split(/(?=[A-Z])|[\s'-]+/).filter(Boolean);
+  let pre=sWords[0]||pick(NAME_PRE);
+  let suf=dWords.length>1?dWords[dWords.length-1]:pick(NAME_SUF);
+  // Sometimes use name parts instead
+  if(Math.random()<.3)pre=pick(NAME_PRE);
+  if(Math.random()<.3)suf=pick(NAME_SUF);
+  // Clean up
+  suf=suf.charAt(0).toLowerCase()+suf.slice(1);
+  let name=pre+suf.charAt(0).toUpperCase()+suf.slice(1);
+  // Sometimes add "II" or "'s"
+  if(Math.random()<.1)name=sireName+"'s "+pick(NAME_SUF).charAt(0).toUpperCase()+pick(NAME_SUF).slice(1);
+  if(Math.random()<.08)name=pre+" "+damName.split(' ')[0];
+  return name.substring(0,18);
+}
+
+// ===== GENE DATA =====
+const BREEDS=['Quarter Horse','Thoroughbred','Arabian','Appaloosa','Paint Horse','Morgan','Andalusian','Friesian'];
+const NAMES_M=['Thunder','Blaze','Copper','Duke','Ranger','Scout','Bandit','Phoenix','Ace','Storm','Flint','Canyon','Maverick','Jasper','Titan','Atlas','Apollo','Cash','Gunner','King','Chief','Buck','Bolt','Rocket','Saber'];
+const NAMES_F=['Luna','Star','Rosie','Willow','Sienna','Sage','Ember','Misty','Daisy','Penny','Ivy','Hazel','Ruby','Ginger','Clover','Maple','Cinnamon','Bonnie','Lady','Belle','Spirit','Honey','Pearl','Dove','Fern'];
+const TEMPERAMENTS=['Bold','Calm','Spirited','Nervous','Stubborn','Fierce'];
+const SPECIAL_GENES=['lightning','champion','iron','nightbloom','windlegacy','truegrit'];
+const SPECIAL_INFO={
+  lightning:{name:'Lightning',icon:'⚡',desc:'+20 speed ceiling, higher injury risk'},
+  champion:{name:'Champion Heart',icon:'🏆',desc:'Performs above stats in high-stakes races'},
+  iron:{name:'Iron Constitution',icon:'🛡️',desc:'Near-immune to illness and injury'},
+  nightbloom:{name:'Night Bloom',icon:'🌙',desc:'Offspring inherit +10 bonus to all stats'},
+  windlegacy:{name:'Wind Legacy',icon:'💨',desc:'Speed genes express more strongly in foals'},
+  truegrit:{name:'True Grit',icon:'🎯',desc:'Never DNFs a race regardless of conditions'}
+};
+
+// ===== COAT COLOR =====
+function resolveCoat(genes){
+  let base;
+  if(genes.E[0]==='e'&&genes.E[1]==='e')base='chestnut';
+  else if(genes.A[0]==='a'&&genes.A[1]==='a')base='black';
+  else base='bay';
+  let name=base.charAt(0).toUpperCase()+base.slice(1);
+  let crCount=(genes.Cr[0]==='Cr'?1:0)+(genes.Cr[1]==='Cr'?1:0);
+  if(crCount===2){
+    if(base==='chestnut')name='Cremello';else if(base==='bay')name='Perlino';else name='Smoky Cream';
+  }else if(crCount===1){
+    if(base==='chestnut')name='Palomino';else if(base==='bay')name='Buckskin';else name='Smoky Black';
+  }
+  if(genes.D[0]==='D'||genes.D[1]==='D'){
+    if(base==='bay')name='Dun';else if(base==='chestnut')name='Red Dun';else name='Grullo';
+  }
+  if(genes.Rn[0]==='Rn'||genes.Rn[1]==='Rn'){
+    if(base==='bay')name='Bay Roan';else if(base==='black')name='Blue Roan';else name='Strawberry Roan';
+  }
+  if(genes.G[0]==='G'||genes.G[1]==='G')name='Grey';
+  if(genes.To[0]==='To'||genes.To[1]==='To')if(!name.includes('Grey'))name+=' Tobiano';
+  if(genes.Lp[0]==='Lp'||genes.Lp[1]==='Lp')if(!name.includes('Grey')){
+    name=(genes.Lp[0]==='Lp'&&genes.Lp[1]==='Lp'?'Leopard ':'Blanket ')+name;
+  }
+  return name;
+}
+function randomAllele(dom,rec,p){return Math.random()<p?dom:rec}
+function inheritAllele(parent,locus){return pick(parent.genes[locus])}
+function randomCoatGenes(){
+  return{E:[randomAllele('E','e',.65),randomAllele('E','e',.65)],A:[randomAllele('A','a',.7),randomAllele('A','a',.7)],
+    Cr:[randomAllele('Cr','cr',.08),randomAllele('Cr','cr',.08)],G:[randomAllele('G','g',.06),randomAllele('G','g',.06)],
+    D:[randomAllele('D','nd',.1),randomAllele('D','nd',.1)],Rn:[randomAllele('Rn','rn',.1),randomAllele('Rn','rn',.1)],
+    To:[randomAllele('To','to',.08),randomAllele('To','to',.08)],Lp:[randomAllele('Lp','lp',.06),randomAllele('Lp','lp',.06)]};
+}
+function randomMarkings(){
+  return{face:Math.random()<.4?pick(['Blaze','Star','Snip','Stripe']):null,
+    legs:[Math.random()<.3?pick(['Sock','Stocking']):null,Math.random()<.3?pick(['Sock','Stocking']):null,
+          Math.random()<.3?pick(['Sock','Stocking']):null,Math.random()<.3?pick(['Sock','Stocking']):null]};
+}
+function inheritMarkings(p1,p2){
+  let face=null;
+  if(p1.markings.face&&Math.random()<.5)face=p1.markings.face;
+  else if(p2.markings.face&&Math.random()<.5)face=p2.markings.face;
+  let legs=[];for(let i=0;i<4;i++){
+    if((p1.markings.legs[i]&&Math.random()<.5)||(p2.markings.legs[i]&&Math.random()<.5))legs.push(pick(['Sock','Stocking']));
+    else legs.push(null);
+  }
+  return{face,legs};
+}
+
+// ===== PERFORMANCE (A–Z ALLELE SYSTEM) =====
+const ALLELE_VAL={A:100,B:91,C:83,D:76,E:70,F:65,G:60,H:56,I:52,J:48,K:45,L:42,M:39,N:36,O:33,P:30,Q:27,R:24,S:21,T:18,U:15,V:12,W:9,X:6,Y:3,Z:1};
+function randomPerfGenes(tier){
+  const pools={low:['N','O','P','Q','R','S','T'],mid:['I','J','K','L','M','N','O'],high:['D','E','F','G','H','I','J'],random:['H','I','J','K','L','M','N','O','P']};
+  let p=pools[tier]||pools.random;
+  return{Sp:[pick(p),pick(p)],St:[pick(p),pick(p)],Hh:[randomAllele('H','h',.7),randomAllele('H','h',.7)],Tr:[pick(['E','N','N','R']),pick(['E','N','N','R'])]};
+}
+function calcSpeed(h){
+  let v=Math.round((ALLELE_VAL[h.genes.Sp[0]]+ALLELE_VAL[h.genes.Sp[1]])/2*(h.expressionMult||1));
+  return clamp(v,1,100);
+}
+function calcStamina(h){
+  let v=Math.round((ALLELE_VAL[h.genes.St[0]]+ALLELE_VAL[h.genes.St[1]])/2*(h.expressionMult||1));
+  return clamp(v,1,100);
+}
+function calcHealthCeiling(h){return clamp((h.genes.Hh[0]==='H'?40:15)+(h.genes.Hh[1]==='H'?40:15)+20-Math.floor((h.inbreedCoeff||0)*80),15,100)}
+function calcHealth(h){
+  let c=calcHealthCeiling(h);
+  let agePen=0;
+  if(h.age>12)agePen=(h.age-12)*3;
+  if(h.age>16)agePen+=(h.age-16)*4;
+  let condPen=(h.conditions||[]).reduce((s,cd)=>s+cd.severity*3,0);
+  return clamp(c-agePen-condPen+(h.healPool||0),0,100);
+}
+
+// ===== SPECIAL GENES (1% on breeding, random gene) =====
+function emptySpecialGenes(){let s={};SPECIAL_GENES.forEach(g=>{s[g]=['N','N']});return s}
+function expressedSpecials(h){let o=[];SPECIAL_GENES.forEach(g=>{if(h.genes.special[g][0]===g&&h.genes.special[g][1]===g)o.push(g)});return o}
+function carriedSpecials(h){let o=[];SPECIAL_GENES.forEach(g=>{let c=(h.genes.special[g][0]===g?1:0)+(h.genes.special[g][1]===g?1:0);if(c===1)o.push(g)});return o}
+
+// ===== TEMPERAMENT =====
+function randomTemperament(){return[pick(TEMPERAMENTS),pick(TEMPERAMENTS)]}
+function resolveTemperament(t){
+  let a=t[0],b=t[1];
+  if(a===b)return{Bold:'Fearless',Calm:'Steady',Spirited:'Fiery',Nervous:'Anxious',Stubborn:'Ironhead',Fierce:'Raging'}[a]||a;
+  let p=[a,b].sort().join('+');
+  return{['Bold+Spirited']:'Daring',['Calm+Spirited']:'Talented',['Bold+Calm']:'Balanced',['Bold+Nervous']:'Unpredictable',
+    ['Fierce+Nervous']:'Volatile',['Calm+Stubborn']:'Patient',['Bold+Fierce']:'Fearless',['Calm+Nervous']:'Gentle',
+    ['Fierce+Stubborn']:'Relentless',['Spirited+Stubborn']:'Headstrong',['Nervous+Stubborn']:'Wary',['Fierce+Spirited']:'Explosive'}[p]||'Unique';
+}
+function trainSpd(t){return{Fearless:12,Steady:8,Fiery:6,Anxious:4,Ironhead:3,Raging:7,Daring:10,Talented:14,Balanced:9,Unpredictable:7,Volatile:5,Patient:10,Gentle:11,Relentless:6,Headstrong:5,Wary:4,Explosive:8,Unique:8}[t]||8}
+function trainCeil(t){return{Fearless:70,Steady:60,Fiery:90,Anxious:45,Ironhead:40,Raging:75,Daring:80,Talented:95,Balanced:65,Unpredictable:85,Volatile:80,Patient:70,Gentle:55,Relentless:85,Headstrong:75,Wary:50,Explosive:90,Unique:70}[t]||70}
+
+// ===== EXPRESSION =====
+function rollExpression(){let r=Math.random();if(r<.05)return 1.25+Math.random()*.1;if(r<.15)return 1.12+Math.random()*.08;if(r<.4)return 1.04+Math.random()*.06;if(r<.8)return .97+Math.random()*.06;if(r<.95)return .82+Math.random()*.08;return .7+Math.random()*.08}
+function exprLabel(m){if(m>=1.25)return'Exceptional';if(m>=1.12)return'Talented';if(m>=1.04)return'Above Avg';if(m>=.97)return'Normal';if(m>=.82)return'Below Avg';return'Weak'}
+
+// ===== INBREEDING =====
+function calcInbreeding(sId,dId,all){
+  if(!sId||!dId)return 0;
+  let sa={},da={};
+  function ga(id,d,out){if(d>3||!id)return;let h=all.find(x=>x.id===id);if(!h)return;out[id]=(out[id]||0)+1;ga(h.sireId,d+1,out);ga(h.damId,d+1,out)}
+  ga(sId,0,sa);ga(dId,0,da);
+  let shared=0,total=0;
+  for(let id in sa){if(da[id])shared+=sa[id]+da[id]}
+  for(let id in sa)total+=sa[id];for(let id in da)total+=da[id];
+  return total?Math.min(1,shared/total):0;
+}
+function inbreedLabel(c){if(c<.04)return'Outcross';if(c<.07)return'Line-bred';if(c<.13)return'Inbred';if(c<.25)return'Highly Inbred';return'Dangerously Inbred'}
+
+// ===== HORSE FACTORY =====
+let nextId=1;
+const allHorses=[];
+function makeHorse(o={}){
+  let g=o.gender||(Math.random()>.5?'M':'F'),br=o.breed||pick(BREEDS),nm=o.name||pick(g==='M'?NAMES_M:NAMES_F),age=o.age??R(2,7);
+  let genes={...randomCoatGenes(),...randomPerfGenes(o.tier||'random'),special:emptySpecialGenes()};
+  if(o.genes)for(let k in o.genes){if(k==='special')Object.assign(genes.special,o.genes.special);else genes[k]=o.genes[k]}
+  // Market horses have small chance of carrying ONE copy of a special gene
+  if(!o.skipSpecialRoll&&Math.random()<.06){let sg=pick(SPECIAL_GENES);genes.special[sg]=[sg,'N']}
+  let h={id:nextId++,gender:g,breed:br,name:nm,age,genes,temperament:o.temperament||randomTemperament(),
+    markings:o.markings||randomMarkings(),expressionMult:o.expressionMult||rollExpression(),
+    inbreedCoeff:o.inbreedCoeff||0,trained:0,wins:0,races:0,maxRaces:10,
+    sireId:o.sireId||null,damId:o.damId||null,
+    conditions:[],healPool:0,
+    menopausal:false,
+    retired:false,bloodlineTier:o.bloodlineTier||'mid',
+    discovered:{expression:false,specials:[]},tested:false,dead:false,deathYear:null,deathCause:null,
+    favorite:false,studOffers:[]};
+  h.coat=resolveCoat(h.genes);h.tempName=resolveTemperament(h.temperament);
+  h.speed=calcSpeed(h);h.stamina=calcStamina(h);h.health=calcHealth(h);h.value=calcValue(h);
+  allHorses.push(h);return h;
+}
+const BLOODLINE_MOD={low:0.92,mid:1.00,high:1.10,elite:1.22};
+function calcValue(h){
+  let v=h.speed*35+h.stamina*20+h.health*15+h.wins*800;
+  let rare=['Cremello','Perlino','Palomino','Buckskin','Grullo'];
+  if(rare.some(c=>h.coat.includes(c)))v+=1500;
+  if(h.coat.includes('Leopard'))v+=2000;
+  if(h.coat.includes('Tobiano'))v+=800;
+  v+=expressedSpecials(h).length*3000;
+  if(h.races>=3&&h.wins/h.races>.6)v=Math.floor(v*1.5);
+  if(h.races>=5&&h.wins/h.races>.7)v=Math.floor(v*2);
+  v=Math.floor(v*(1-(h.inbreedCoeff||0)*.5));
+  // Age decay
+  if(h.age>=6){
+    let trophies=Math.min(h.wins||0,50);
+    let trophyMult=Math.min(1+0.012*trophies,1.75);
+    let bmod=BLOODLINE_MOD[h.bloodlineTier||'mid']||1.00;
+    v=Math.floor(v*Math.exp(-0.085*(h.age-5))*trophyMult*bmod);
+  }
+  if(h.menopausal)v=Math.floor(v*0.5);
+  return Math.max(200,v);
+}
+function refreshStats(h){h.health=calcHealth(h);h.value=calcValue(h)}
+
+// ===== CONDITIONS SYSTEM =====
+function worsenConditions(g,h){
+  if(!h.conditions||!h.conditions.length)return;
+  let untreated=h.conditions.filter(c=>!c.treatedThisYear);
+  untreated.forEach(c=>{
+    c.yearsUntreated=(c.yearsUntreated||0)+1;
+    let sevIncrChance=Math.min(0.08+0.04*c.yearsUntreated+0.015*c.severity,0.45);
+    if(Math.random()<sevIncrChance){c.severity=Math.min(10,c.severity+1)}
+    if(c.severity>=10){h.dead=true;h.deathCause='untreated condition';h.deathYear=g.year;return}
+  });
+  h.conditions.forEach(c=>{c.treatedThisYear=false});
+  // Secondary condition chance
+  let untreatedCount=untreated.length;
+  let secChance=Math.min(0.04+0.02*untreatedCount,0.15);
+  if(Math.random()<secChance&&untreatedCount>0){
+    h.conditions.push({name:'Secondary Infection',type:'sickness',severity:R(1,3),yearsUntreated:0,treatedThisYear:false});
+    g.addEvent(`🦠 ${h.name} developed a secondary infection!`,'bad');
+  }
+  // Death check from untreated illness
+  let health=calcHealth(h);
+  if(health<20&&untreatedCount>0){
+    let deathChance=Math.min(0.01+0.01*untreatedCount+0.005*(20-health),0.20);
+    if(Math.random()<deathChance){h.dead=true;h.deathCause='illness complications';h.deathYear=g.year}
+  }
+}
+
+// ===== MENOPAUSE =====
+function rollMenopause(g,h){
+  if(h.gender!=='F'||h.menopausal)return;
+  const rates={13:0.10,14:0.20,15:0.35,16:0.55,17:0.75};
+  let rate=h.age>=18?1.0:(rates[h.age]||0);
+  if(rate>0&&Math.random()<rate){
+    h.menopausal=true;
+    g.addEvent(`🌸 ${h.name} has entered menopause.`,'neutral');
+  }
+}
+
+// ===== FOAL SUCCESS =====
+function foalSuccessChance(dam){
+  const agePenTable={2:0,3:0,4:0,5:0,6:0.02,7:0.04,8:0.07,9:0.11,10:0.16,11:0.22,12:0.29,13:0.37};
+  let agePen=dam.age>=14?0.46:(agePenTable[dam.age]||0);
+  let health=calcHealth(dam);
+  let healthPen=(100-health)/250;
+  return clamp(0.97-agePen-healthPen,0.05,0.97);
+}
+
+// ===== BREED FOAL =====
+function breedFoal(sire,dam){
+  try{
+  let genes={};
+  ['E','A','Cr','G','D','Rn','To','Lp'].forEach(l=>{genes[l]=[inheritAllele(sire,l),inheritAllele(dam,l)]});
+  ['Sp','St','Hh','Tr'].forEach(l=>{genes[l]=[inheritAllele(sire,l),inheritAllele(dam,l)]});
+  // Special genes: inherit from parents normally
+  let special=emptySpecialGenes();
+  SPECIAL_GENES.forEach(g=>{special[g]=[pick(sire.genes.special[g]),pick(dam.genes.special[g])]});
+  // 1% chance this breeding produces a NEW random special gene mutation
+  let _pendingMutation=null;
+  if(Math.random()<.01){let sg=pick(SPECIAL_GENES);special[sg]=[sg,sg];_pendingMutation=sg}
+  // Throwback 5%
+  if(Math.random()<.05){
+    let gpId=pick([sire.sireId,sire.damId,dam.sireId,dam.damId].filter(Boolean));
+    let gp=allHorses.find(x=>x.id===gpId);
+    if(gp){let l=pick(['E','A','Cr','G','D','Rn','To','Lp','Sp','St']);genes[l][R(0,1)]=pick(gp.genes[l])}
+  }
+  genes.special=special;
+  let ic=calcInbreeding(sire.id,dam.id,allHorses);
+  let nbBonus=0;if(expressedSpecials(sire).includes('nightbloom'))nbBonus+=10;if(expressedSpecials(dam).includes('nightbloom'))nbBonus+=10;
+  let wl=1;if(expressedSpecials(sire).includes('windlegacy'))wl+=.15;if(expressedSpecials(dam).includes('windlegacy'))wl+=.15;
+  let expr=rollExpression();if(ic<.04)expr+=.03;
+  let foalName=breedName(sire.name,dam.name);
+  // Bloodline tier: escalate if either parent is higher
+  const tierRank={low:0,mid:1,high:2,elite:3};
+  let sTier=sire.bloodlineTier||'mid',dTier=dam.bloodlineTier||'mid';
+  let foalTier=tierRank[sTier]>=tierRank[dTier]?sTier:dTier;
+  let foal=makeHorse({gender:Math.random()>.5?'M':'F',breed:Math.random()>.5?sire.breed:dam.breed,name:foalName,
+    age:0,genes,temperament:[pick(sire.temperament),pick(dam.temperament)],markings:inheritMarkings(sire,dam),
+    expressionMult:expr*wl,inbreedCoeff:ic,sireId:sire.id,damId:dam.id,bloodlineTier:foalTier,skipSpecialRoll:true});
+  if(nbBonus>0){foal.speed=clamp(foal.speed+nbBonus,10,100);foal.stamina=clamp(foal.stamina+nbBonus,10,100)}
+  if(_pendingMutation)foal.mutationGene=_pendingMutation;
+  foal.value=calcValue(foal);return foal;
+  }catch(e){console.error('breedFoal error:',e);return null}
+}
+
+// ===== AI BIDDERS =====
+const BIDDER_TYPES=[
+  {name:'Rancher Bob',icon:'🤠',pref:'practical',maxMult:1.1},
+  {name:'Silkwood Farm',icon:'🎨',pref:'rarecoat',maxMult:2.0},
+  {name:'Coach Williams',icon:'🏆',pref:'speed',maxMult:1.5},
+  {name:'Dr. Genes',icon:'🔬',pref:'genes',maxMult:1.4},
+  {name:'New Money',icon:'🤑',pref:'random',maxMult:1.8},
+  {name:'Heritage Stables',icon:'🏛️',pref:'pedigree',maxMult:1.3},
+];
+function generateBidders(horse,tier){
+  let count=tier==='county'?R(2,3):tier==='regional'?R(3,5):R(4,6);
+  let bidders=[];for(let i=0;i<count;i++){
+    let t={...pick(BIDDER_TYPES)};let interest=1;
+    if(t.pref==='rarecoat'&&['Cremello','Perlino','Palomino','Leopard','Tobiano'].some(c=>horse.coat.includes(c)))interest+=.8;
+    if(t.pref==='speed'&&horse.speed>=70)interest+=.5;
+    if(t.pref==='genes'&&(horse.tested||expressedSpecials(horse).length))interest+=.6;
+    if(t.pref==='random')interest+=Math.random()*.6;
+    t.maxBid=Math.floor(horse.value*t.maxMult*Math.max(.3,interest)*(.8+Math.random()*.4));
+    t.active=true;t.lastBid=0;bidders.push(t);
+  }
+  // Reputation bonus: higher rep = bidders bid higher
+  if(G.reputation>0)bidders.forEach(b=>{b.maxBid=Math.floor(b.maxBid*(1+G.reputation/200))});
+  return bidders.sort((a,b)=>b.maxBid-a.maxBid);
+}
+
+// ===== RACES WITH LOCATIONS =====
+const RACES=[
+  {id:'local',name:'County Fair Derby',icon:'🎠',loc:'Dusty Hollow',fee:200,prizes:[500,300,100],minRep:0,dist:'Short',minAge:3,maxAge:5},
+  {id:'regional',name:'Bluegrass Stakes',icon:'🏇',loc:'Lexington, KY',fee:500,prizes:[2000,1000,400],minRep:15,dist:'Medium',minAge:3,maxAge:5},
+  {id:'state',name:'Governor\'s Cup',icon:'🏆',loc:'Louisville, KY',fee:1500,prizes:[8000,4000,1500],minRep:40,dist:'Long',minAge:3,maxAge:5},
+  {id:'national',name:'Kentucky Derby',icon:'👑',loc:'Churchill Downs',fee:5000,prizes:[25000,12000,5000],minRep:75,dist:'Marathon',minAge:3,maxAge:3},
+];
+const RANCH_LEVELS=[null,
+  {name:'Starter Ranch',cap:6,raceBonus:0,breedBonus:0,maint:500},
+  {name:'Family Ranch',cap:10,raceBonus:5,breedBonus:0,maint:800,cost:5000},
+  {name:'Horse Farm',cap:15,raceBonus:10,breedBonus:5,maint:1200,cost:15000},
+  {name:'Breeding Estate',cap:22,raceBonus:15,breedBonus:10,maint:2000,cost:30000}];
+
+// ===== EVENTS =====
+const EVENTS={
+  mild:[
+    {text:'🤧 {name} caught a cold.',type:'bad',fx:(g,h)=>{if(h&&!h.retired)h.conditions.push({name:'Cold',type:'sickness',severity:R(1,2),yearsUntreated:0,treatedThisYear:false});g.money=Math.max(0,g.money-250)}},
+    {text:'🦷 {name} has dental issues. -$300',type:'bad',fx:(g,h)=>{g.money=Math.max(0,g.money-300)}},
+    {text:'😴 {name} is feeling lethargic.',type:'neutral',fx:(g,h)=>{if(h&&!h.retired)h.conditions.push({name:'Lethargy',type:'sickness',severity:1,yearsUntreated:0,treatedThisYear:false})}},
+    {text:'🌿 {name} got into the herb garden.',type:'neutral',fx:(g,h)=>{if(h&&!h.retired){h.conditions.push({name:'Upset Stomach',type:'sickness',severity:1,yearsUntreated:0,treatedThisYear:false});g.money=Math.max(0,g.money-100)}}},
+    {text:'🦟 {name} has a mysterious itch.',type:'neutral',fx:(g,h)=>{if(h&&!h.retired)h.conditions.push({name:'Skin Irritation',type:'sickness',severity:1,yearsUntreated:0,treatedThisYear:false})}},
+    {text:'🐝 {name} was stung by bees!',type:'bad',fx:(g,h)=>{if(h&&!h.retired){h.conditions.push({name:'Bee Sting Reaction',type:'sickness',severity:R(1,2),yearsUntreated:0,treatedThisYear:false});g.money=Math.max(0,g.money-150)}}},
+  ],
+  moderate:[
+    {text:'🤒 {name} has a high fever! -$800',type:'bad',fx:(g,h)=>{if(h&&!h.retired)h.conditions.push({name:'Fever',type:'sickness',severity:R(2,4),yearsUntreated:0,treatedThisYear:false});g.money=Math.max(0,g.money-800)}},
+    {text:'🦵 {name} sprained a tendon. -$500',type:'bad',fx:(g,h)=>{if(h&&!h.retired)h.conditions.push({name:'Sprained Tendon',type:'injury',severity:R(2,4),yearsUntreated:0,treatedThisYear:false});g.money=Math.max(0,g.money-500)}},
+    {text:'🐛 {name} has parasites! -$600',type:'bad',fx:(g,h)=>{if(h&&!h.retired)h.conditions.push({name:'Parasites',type:'sickness',severity:R(1,3),yearsUntreated:0,treatedThisYear:false});g.money=Math.max(0,g.money-600)}},
+    {text:'🌡️ {name} has heatstroke.',type:'bad',fx:(g,h)=>{if(h&&!h.retired){h.conditions.push({name:'Heatstroke',type:'sickness',severity:R(2,3),yearsUntreated:0,treatedThisYear:false});g.money=Math.max(0,g.money-600)}}},
+    {text:'🤕 {name} ran into the fence post. Again.',type:'bad',fx:(g,h)=>{if(h&&!h.retired){h.conditions.push({name:'Blunt Trauma',type:'injury',severity:R(1,3),yearsUntreated:0,treatedThisYear:false});g.money=Math.max(0,g.money-400)}}},
+  ],
+  severe:[
+    {text:'🦴 {name} broke a leg and had to be put down.',type:'death',fx:(g,h)=>{h.dead=true;h.deathCause='leg break';h.deathYear=g.year}},
+    {text:'🦠 {name} has a serious infection! -$2,000',type:'bad',fx:(g,h)=>{if(h&&!h.retired)h.conditions.push({name:'Serious Infection',type:'sickness',severity:R(4,7),yearsUntreated:0,treatedThisYear:false});g.money=Math.max(0,g.money-2000)}},
+  ],
+  catastrophic:[
+    {text:'🔥 The barn caught fire!',type:'death',fx:(g)=>{
+      let lost=[];g.horses.forEach(h=>{if(Math.random()<.2&&!h.retired){h.dead=true;h.deathCause='barn fire';h.deathYear=g.year;lost.push(h.name)}});
+      g.money=Math.max(0,g.money-10000);return lost.length?'Lost: '+lost.join(', ')+'. -$10K repairs':'All survived! -$10K repairs'}},
+    {text:'🌊 Flash flood!',type:'bad',fx:(g)=>{g.money=Math.max(0,g.money-3000);g.horses.forEach(h=>{if(!h.retired)h.conditions.push({name:'Flood Stress',type:'sickness',severity:1,yearsUntreated:0,treatedThisYear:false})})}},
+  ],
+  good:[
+    {text:'🪙 Found gold in the hay! +{amt}',type:'good',fx:(g)=>{let a=R(3000,8000);g.money+=a;return money(a)}},
+    {text:'📰 Local news featured your ranch!',type:'good',fx:(g)=>{g.reputation=Math.min(100,g.reputation+R(5,12))}},
+    {text:'🌾 Bumper hay harvest!',type:'good',fx:(g)=>{g.money+=R(600,1200)}},
+    {text:'⭐ Horse magazine profile!',type:'good',fx:(g)=>{g.reputation=Math.min(100,g.reputation+R(3,8))}},
+    {text:'🧑‍🌾 A traveling vet offered a free check-up!',type:'good',fx:(g,h)=>{if(h&&!h.retired&&h.conditions.length>0){h.conditions[0].severity=Math.max(1,h.conditions[0].severity-1);g.addEvent('🩺 '+h.name+'\'s '+h.conditions[0].name+' improved!','good')}}},
+    {text:'🌈 A rainbow appeared over the ranch. Good omen!',type:'good',fx:(g)=>{g.reputation=Math.min(100,g.reputation+R(2,5))}},
+    {text:'🎪 Traveling circus passed through!',type:'good',fx:(g)=>{g.money+=R(800,2000)}},
+  ]
+};
+
+// ===== TEMPERAMENT RACE EFFECTS =====
+const TEMP_EFFECTS={
+  Fearless:     {green:+4,yellow:-2,red:-2,staminaDrain:+1,greenBonus:0},
+  Steady:       {green:+2,yellow:+4,red:-6,staminaDrain:-1,variance:-0.25},
+  Fiery:        {green:+3,yellow:-5,red:+2,staminaDrain:+2,greenBonus:+12},
+  Anxious:      {green:-4,yellow:-2,red:+6,redInjury:0.07},
+  Ironhead:     {green:-1,yellow:+3,red:-2,redPenalty:-15},
+  Raging:       {green:+4,yellow:-8,red:+4,staminaDrain:+2,greenBonus:+14,redPenalty:-24,redInjury:0.07},
+  Daring:       {green:+3,yellow:-1,red:-2,staminaDrain:+1,greenBonus:+11},
+  Talented:     {green:+4,yellow:+2,red:-6,staminaDrain:-1,yellowBonus:+2},
+  Balanced:     {green:+1,yellow:+2,red:-3,staminaDrain:-1},
+  Unpredictable:{randomZone:4,randomGreenBonus:[8,14],randomRedPenalty:[-24,-16]},
+  Volatile:     {green:+4,yellow:-6,red:+2,staminaDrain:+2,greenBonus:+13,redInjury:0.08},
+  Patient:      {green:+1,yellow:+4,red:-5,yellowStaminaRestore:+1},
+  Gentle:       {green:+2,yellow:+4,red:-6,greenBonus:+9},
+  Relentless:   {fatigueMult:0.75,staminaDrain:+1},
+  Headstrong:   {earlyGreen:+4,earlyRed:+1,lateGreen:-2,lateRed:+4},
+  Wary:         {green:-3,yellow:+6,red:-3,redInjury:0.04},
+  Explosive:    {green:+5,yellow:-9,red:+4,staminaDrain:+3,greenBonus:+15,redPenalty:-25,redInjury:0.08},
+  Unique:       {},
+};
+
+// ===== TRAIT SUBTITLES FOR MUTATION REEL =====
+const TRAIT_SUBS={
+  lightning:'Blinding acceleration',
+  champion:'Rises in big moments',
+  iron:'Built to endure',
+  nightbloom:'Power passed to offspring',
+  windlegacy:'Speed written in blood',
+  truegrit:'Never backs down'
+};
+
+// ===== STUD OFFER FUNCTIONS =====
+function studDesirability(h){
+  const bScore={low:0,mid:1,high:2,elite:3}[h.bloodlineTier||'mid']||1;
+  let T=Math.min(h.wins||0,20);
+  let W=h.wins||0,V=h.value||0,S=expressedSpecials(h).length,B=bScore;
+  return 5*T+2*W+0.00008*V+8*S+4*B;
+}
+function studOfferChance(h){return Math.min(0.10+0.012*studDesirability(h),0.85)}
+function studOfferFee(h){
+  const bMult={low:0.9,mid:1.0,high:1.15,elite:1.35}[h.bloodlineTier||'mid']||1.0;
+  let T=Math.min(h.wins||0,20),W=h.wins||0,V=h.value||0,S=expressedSpecials(h).length;
+  let fee=(250+260*T+140*W+0.07*V)*bMult*Math.pow(1.2,S);
+  return Math.round(fee/50)*50;
+}
+
+// ===== GAME STATE =====
+const G={
+  year:1,money:6500,reputation:0,ranchLevel:1,
+  horses:[],retired:[],pregnancies:[],events:[],auctionHorses:[],
+  legacy:{wins:[],champWins:[],totalEarnings:0},
+  currentTab:'home',phase:'cutscene',ranchName:'',starterMare:null,
+  horseFilter:'all',
+  _auction:null,_sellAuction:null,_raceHorse:null,_raceType:null,_yearSummary:[],
+  _mg:null,_pendingStudOffers:[],_cursorAnim:null,
+
+  // ===== CUTSCENE =====
+  initCutscene(){
+    $('cs-content').innerHTML=`<div style="font-size:44px;margin-bottom:10px">🌅</div>
+      <h2>A New Beginning</h2>
+      <p>Your grandmother passed away last spring. She left you two things — her weathered old ranch and her aging mare.<br><br>It's not much. But it's yours.</p>
+      <input id="ranch-input" placeholder="Name your ranch..." maxlength="30" value="Dusty Trails Ranch">
+      <button class="btn btn-gold btn-block" onclick="G.startGame()">Begin Your Story</button>`;
+  },
+  startGame(){
+    G.ranchName=$('ranch-input').value.trim()||'Dusty Trails Ranch';
+    $('ranch-name-disp').textContent=G.ranchName;$('title-display').textContent='Ranch Life';
+    G.starterMare=makeHorse({gender:'F',name:pick(NAMES_F),age:R(5,8),tier:'low',bloodlineTier:'low',
+      genes:{Sp:[pick(['N','O','P','Q']),pick(['O','P','Q','R'])],St:[pick(['N','O','P','Q']),pick(['O','P','Q','R'])],Hh:['H',pick(['H','h'])],Tr:[pick(['E','N']),pick(['N','R'])]}});
+    G.horses.push(G.starterMare);
+    G.auctionHorses=[makeHorse({gender:'M',age:R(3,5),tier:'low'}),makeHorse({gender:'M',age:R(3,6),tier:'mid'}),
+      makeHorse({gender:'M',age:R(3,5),tier:'high'})];
+    G.auctionHorses[0].value=R(1200,1800);G.auctionHorses[1].value=R(3000,4500);
+    G.auctionHorses[2].value=Math.max(G.auctionHorses[2].value,16000);
+    G.phase='stallion_market';
+    $('cs-content').innerHTML=`<div style="font-size:32px">🐎</div>
+      <h2>Meet ${G.starterMare.name}</h2>
+      <p>Your grandmother's old mare. A <strong>${G.starterMare.coat} ${G.starterMare.breed}</strong>, age ${G.starterMare.age}.</p>
+      <div style="text-align:left;margin:10px 0">
+        <div class="sbar"><div class="sbar-label">⚡ Speed: ${G.starterMare.speed}</div><div class="sbar-bg"><div class="sbar-fill fill-speed" style="width:${pct(G.starterMare.speed)}%"></div></div></div>
+        <div class="sbar"><div class="sbar-label">💪 Stamina: ${G.starterMare.stamina}</div><div class="sbar-bg"><div class="sbar-fill fill-stamina" style="width:${pct(G.starterMare.stamina)}%"></div></div></div>
+      </div>
+      <p class="text-sm">She needs a stallion. Head to auction.</p>
+      <button class="btn btn-gold btn-block" onclick="$('cutscene').classList.add('hidden');G.phase='first_auction';G.tab('auction');G.updateUI()">Go to Stallion Auction</button>`;
+  },
+
+  // ===== TABS =====
+  tab(t){G.currentTab=t;document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.dataset.tab===t));G.renderTab()},
+  renderTab(){
+    let c=$('content');
+    switch(G.currentTab){
+      case'home':c.innerHTML=G.renderHome();break;case'horses':c.innerHTML=G.renderHorses();break;
+      case'auction':c.innerHTML=G.renderAuction();break;case'race':c.innerHTML=G.renderRace();break;
+      case'ranch':c.innerHTML=G.renderRanch();break;case'legacy':c.innerHTML=G.renderLegacy();break;
+    }
+  },
+
+  // ===== HOME =====
+  renderHome(){
+    let h='<div class="sec-title">Ranch Journal</div>';
+    if(!G.events.length)h+=`<div class="empty"><div class="icon">🌅</div>Your story begins here.</div>`;
+    else G.events.slice(0,30).forEach(e=>{h+=`<div class="ev ev-${e.type}"><span class="text-xs text-muted">Year ${e.year}</span><br>${e.text}</div>`});
+    return h;
+  },
+
+  // ===== HORSES (with filters & favorites) =====
+  renderHorses(){
+    let cap=RANCH_LEVELS[G.ranchLevel].cap;
+    let activeCount=G.horses.filter(x=>!x.retired).length;
+    let h=`<div class="sec-title">My Horses (${activeCount}/${cap})</div>`;
+    h+=`<div class="filter-bar">
+      ${['all','fav','male','female','foal','retired'].map(f=>`<div class="filter-btn ${G.horseFilter===f?'active':''}" onclick="G.horseFilter='${f}';G.renderTab()">${
+        {all:'All',fav:'⭐ Fav',male:'♂ Stallions',female:'♀ Mares',foal:'🍼 Foals',retired:'🏡 Retired'}[f]}</div>`).join('')}
+    </div>`;
+    let pregIds=new Set(G.pregnancies.map(p=>p.damId));
+    let allOwned=[...G.horses,...G.retired];
+    let filtered=allOwned.filter(x=>{
+      if(G.horseFilter==='retired')return x.retired;
+      if(x.retired)return false;
+      if(G.horseFilter==='fav')return x.favorite;
+      if(G.horseFilter==='male')return x.gender==='M'&&x.age>=2;
+      if(G.horseFilter==='female')return x.gender==='F'&&x.age>=2;
+      if(G.horseFilter==='foal')return x.age<3;
+      return true;
+    });
+    if(!filtered.length)h+=`<div class="empty"><div class="icon">🌾</div>No horses match this filter.</div>`;
+    filtered.forEach(horse=>{
+      let sp=expressedSpecials(horse),si=sp.map(s=>SPECIAL_INFO[s].icon).join('');
+      let isPreg=pregIds.has(horse.id);
+      let hasSpec=expressedSpecials(horse).length>0;
+      h+=`<div class="horse-card${horse.favorite?' fav':''}" style="${hasSpec?'border:2px solid #D4A017;':''}" onclick="G.showHorseDetail(${horse.id})">
+        <div class="fav-star" onclick="event.stopPropagation();G.toggleFav(${horse.id})">${horse.favorite?'⭐':'☆'}</div>
+        <div class="horse-avatar">${horse.gender==='M'?'🐴':'🐎'}</div>
+        <div class="horse-info">
+          <div class="horse-name">${horse.name} <span class="tag tag-${horse.gender==='M'?'m':'f'}">${horse.gender==='M'?'♂':'♀'}</span>
+          ${horse.age<3?'<span class="tag tag-foal">Foal</span>':''}${si?'<span class="tag tag-special">'+si+'</span>':''}
+          ${isPreg?'<span class="tag" style="background:#FCE4EC;color:#880E4F">🤰 Pregnant</span>':''}
+          ${horse.menopausal?'<span class="tag" style="background:#F3E5F5;color:#6A1B9A">🌸 Meno</span>':''}
+          ${horse.retired?'<span class="tag" style="background:#E0E0E0;color:#424242">🏡 Retired</span>':''}
+          ${(horse.conditions&&horse.conditions.length)?'<span class="tag" style="background:#FFEBEE;color:#B71C1C">⚠️ '+horse.conditions.length+'</span>':''}
+          </div>
+          <div class="horse-sub">${horse.coat} ${horse.breed} · Age ${horse.age} · ${horse.tempName}</div>
+          <div class="sbar"><div class="sbar-label">⚡${horse.speed}</div><div class="sbar-bg"><div class="sbar-fill fill-speed" style="width:${pct(horse.speed)}%"></div></div></div>
+          <div class="sbar"><div class="sbar-label">❤️${horse.health}</div><div class="sbar-bg"><div class="sbar-fill fill-health" style="width:${pct(horse.health)}%"></div></div></div>
+        </div>
+        <div class="horse-right"><div>🏆${horse.wins}/${horse.races}</div><div class="money">${money(horse.value)}</div><div class="text-xs">${horse.retired?'Retired':(horse.maxRaces-horse.races)+' races left'}</div></div>
+      </div>`;
+    });
+    return h;
+  },
+  toggleFav(id){let h=G.horses.find(x=>x.id===id);if(h)h.favorite=!h.favorite;G.renderTab()},
+
+  showHorseDetail(id){
+    let h=G.horses.find(x=>x.id===id)||G.retired.find(x=>x.id===id)||allHorses.find(x=>x.id===id);if(!h)return;
+    let sp=expressedSpecials(h),ca=h.tested?carriedSpecials(h):[];
+    let sire=allHorses.find(x=>x.id===h.sireId),dam=allHorses.find(x=>x.id===h.damId);
+    let isPreg=G.pregnancies.some(p=>p.damId===h.id);
+    let hasSpecial=sp.length>0;
+    let headerStyle=hasSpecial?'background:linear-gradient(135deg,#FFF8E1,#F5E6C8);border:1px solid #D4A017;border-radius:10px;padding:10px 12px;margin-bottom:8px':'';
+    let html=`<div style="${headerStyle}">
+      <h2>${h.gender==='M'?'🐴':'🐎'} ${h.name} ${h.favorite?'⭐':''}</h2>
+      <div class="text-center text-sm text-muted">${h.coat} ${h.breed} · ${h.gender==='M'?'Stallion':'Mare'} · Age ${h.age} · ${h.tempName}</div>
+      <div class="text-center text-xs text-muted">Inbreeding: ${inbreedLabel(h.inbreedCoeff)} (${(h.inbreedCoeff*100).toFixed(1)}%)</div>
+      ${h.discovered.expression?'<div class="text-center text-xs mt-sm">Potential: '+exprLabel(h.expressionMult)+'</div>':''} 
+      ${isPreg?'<div class="text-center mt-sm"><span class="tag" style="background:#FCE4EC;color:#880E4F;font-size:12px">🤰 Pregnant</span></div>':''} 
+      ${h.menopausal?'<div class="text-center mt-sm"><span class="tag" style="background:#F3E5F5;color:#6A1B9A;font-size:12px">🌸 Menopausal — cannot breed</span></div>':''} 
+      ${h.retired?'<div class="text-center mt-sm"><span class="tag" style="background:#E0E0E0;color:#424242;font-size:12px">🏡 Retired</span></div>':''} 
+      </div>
+      <div class="mt-sm">
+        <div class="sbar"><div class="sbar-label">⚡ Speed: ${h.speed}</div><div class="sbar-bg"><div class="sbar-fill fill-speed" style="width:${pct(h.speed)}%"></div></div></div>
+        <div class="sbar"><div class="sbar-label">💪 Stamina: ${h.stamina}</div><div class="sbar-bg"><div class="sbar-fill fill-stamina" style="width:${pct(h.stamina)}%"></div></div></div>
+        <div class="sbar"><div class="sbar-label">❤️ Health: ${h.health}</div><div class="sbar-bg"><div class="sbar-fill fill-health" style="width:${pct(h.health)}%"></div></div></div>
+        <div class="sbar"><div class="sbar-label">📚 Trained: ${h.trained}/${trainCeil(h.tempName)}</div><div class="sbar-bg"><div class="sbar-fill fill-trained" style="width:${pct(h.trained)}%"></div></div></div>
+      </div>
+      ${sp.length?'<div class="mt-sm text-center">'+sp.map(s=>'<span class="tag tag-special">'+SPECIAL_INFO[s].icon+' '+SPECIAL_INFO[s].name+'</span>').join(' ')+'</div>':''} 
+      ${ca.length?'<div class="mt-sm text-center text-xs">Carries: '+ca.map(s=>SPECIAL_INFO[s].icon+' '+SPECIAL_INFO[s].name).join(', ')+'</div>':''} `;
+    // Conditions
+    if(h.conditions&&h.conditions.length){
+      html+=`<div class="sec-sub">⚠️ Conditions</div>`;
+      h.conditions.forEach((cond,ci)=>{
+        let hlth=calcHealth(h),m=100-hlth;
+        let cost=Math.round(120+10*m+0.4*m*m);
+        html+=`<div class="card" style="padding:8px;border-left:4px solid ${cond.type==='injury'?'#E65100':'#C62828'};margin-bottom:6px">
+          <div class="flex-row"><span style="font-weight:bold;font-size:11px">${cond.type==='injury'?'🦴':'🦠'} ${cond.name}</span>
+            <span class="text-xs text-muted">Sev ${cond.severity}/10${cond.treatedThisYear?' ✅':''} ${cond.yearsUntreated>0?' ('+cond.yearsUntreated+'yr untreated)':''}</span>
+          </div>
+          ${!h.retired?`<button class="btn btn-green btn-sm mt-sm" onclick="G.treatCondition(${h.id},${ci})">💊 Treat (~${money(cost)})</button>`:''}
+        </div>`;
+      });
+    }
+    html+=`<div class="sec-sub">Pedigree</div><div class="grid-2">
+        <div class="ped-box"><div class="name">${sire?sire.name:'Unknown'}</div><div class="coat">${sire?sire.coat:''}</div></div>
+        <div class="ped-box"><div class="name">${dam?dam.name:'Unknown'}</div><div class="coat">${dam?dam.coat:''}</div></div>
+      </div>
+      <button class="btn btn-ghost btn-sm mt-sm btn-block" onclick="G.showFamilyTree(${h.id})">🌳 Family Tree</button>
+      <div class="grid-2 mt-sm">
+        <div style="background:#FFF8E1;border-radius:8px;padding:6px;text-align:center"><div class="text-xs text-muted">Record</div><div style="font-weight:bold;color:#3D1C02">🏆 ${h.wins}W / ${h.races}R (${h.maxRaces-h.races} left)</div></div>
+        <div style="background:#FFF8E1;border-radius:8px;padding:6px;text-align:center"><div class="text-xs text-muted">Value</div><div class="money">${money(h.value)}</div></div>
+      </div>`;
+    let owned=G.horses.includes(h);
+    if(owned&&!h.retired){
+      html+=`<div class="mt-md grid-2">
+        <button class="btn btn-primary btn-block" onclick="G.trainHorse(${h.id})">📚 Train ($500)</button>
+        <button class="btn btn-ghost btn-block" onclick="G.testHorse(${h.id})">🧬 Test ($800)</button>
+      </div>
+      <div class="grid-2 mt-sm">
+        <button class="btn btn-gold btn-block btn-sm" onclick="G.toggleFav(${h.id});G.showHorseDetail(${h.id})">${h.favorite?'★ Unfavorite':'☆ Favorite'}</button>
+        <button class="btn btn-danger btn-block btn-sm" onclick="G.confirmSell(${h.id})">🔨 Sell at Auction</button>
+      </div>
+      <div class="grid-2 mt-sm">
+        <button class="btn btn-ghost btn-block btn-sm" onclick="G.renameHorse(${h.id})">✏️ Rename</button>
+        <button class="btn btn-ghost btn-block btn-sm" onclick="G.retireHorse(${h.id})">🏡 Retire Horse</button>
+      </div>`;
+    }
+    html+=`<button class="btn btn-ghost btn-block mt-sm" onclick="G.closeModal()">Close</button>`;
+    $('modal-content').innerHTML=html;$('modal-bg').classList.add('show');
+  },
+
+  trainHorse(id){
+    let h=G.horses.find(x=>x.id===id);if(!h)return;
+    if(h.retired){G.toast('Retired horses cannot train!');return}
+    if(G.money<500){G.toast('Not enough money!');return}
+    let ceil=trainCeil(h.tempName);if(h.trained>=ceil){G.toast('At training ceiling!');return}
+    if(h.age<2){G.toast('Too young!');return}
+    G.money-=500;let gain=Math.min(ceil-h.trained,trainSpd(h.tempName)+R(-2,3));
+    h.trained=Math.min(ceil,h.trained+gain);if(h.trained>20)h.discovered.expression=true;
+    // Training injury (1% base, modified by health)
+    let trainInjChance=0.01;
+    let th=calcHealth(h);
+    let thMod=th>=90?-0.02:th>=70?-0.01:th>=50?0:th>=30?0.02:0.04;
+    trainInjChance+=thMod;
+    if(Math.random()<trainInjChance){
+      let sev=R(1,5);
+      h.conditions.push({name:'Training Strain',type:'injury',severity:sev,yearsUntreated:0,treatedThisYear:false});
+      G.addEvent(`⚠️ ${h.name} suffered a training strain (severity ${sev})!`,'bad');
+    }
+    refreshStats(h);G.toast(`${h.name} +${gain} training!`);G.showHorseDetail(id);G.updateUI();
+  },
+  testHorse(id){
+    let h=G.horses.find(x=>x.id===id);if(!h)return;
+    if(h.tested){G.toast('Already tested!');return}if(G.money<800){G.toast('Need $800!');return}
+    G.money-=800;h.tested=true;h.discovered.expression=true;
+    let r=[];carriedSpecials(h).forEach(s=>r.push('Carries '+SPECIAL_INFO[s].icon));
+    expressedSpecials(h).forEach(s=>r.push('Expresses '+SPECIAL_INFO[s].icon));
+    r.push('Speed: '+h.genes.Sp.join('/')+' Stam: '+h.genes.St.join('/'));
+    G.addEvent('🧬 Test for '+h.name+': '+r.join(', '),'neutral');
+    G.toast('Test complete!');G.showHorseDetail(id);G.updateUI();
+  },
+
+  // ===== AUCTION (confirm + animated selling) =====
+  renderAuction(){
+    let h='<div class="sec-title">Auction House</div>';
+    if(G.phase==='first_auction')h+=`<div class="card text-sm" style="color:#6B3A2A;border-left:4px solid #D4A017">🐴 <strong>First auction!</strong> ${G.starterMare.name} needs a stallion.</div>`;
+    if(!G.auctionHorses.length){h+=`<div class="empty"><div class="icon">🔨</div>No horses. Come back next year!</div>`;return h}
+    G.auctionHorses.forEach((horse,i)=>{
+      let sp=expressedSpecials(horse);
+      h+=`<div class="auction-lot">
+        <div class="flex-row"><div><span style="font-size:20px">${horse.gender==='M'?'🐴':'🐎'}</span>
+          <strong style="color:#3D1C02"> ${horse.name}</strong> <span class="tag tag-${horse.gender==='M'?'m':'f'}">${horse.gender==='M'?'♂':'♀'}</span>
+          ${sp.map(s=>'<span class="tag tag-special">'+SPECIAL_INFO[s].icon+'</span>').join('')}
+        </div><span style="background:#D4A017;color:#3D1C02;padding:2px 8px;border-radius:10px;font-weight:bold;font-size:12px">${money(horse.value)}</span></div>
+        <div class="text-xs text-muted mt-sm">${horse.coat} ${horse.breed} · Age ${horse.age} · ${horse.tempName}</div>
+        <div class="sbar"><div class="sbar-label">⚡ ${horse.speed}</div><div class="sbar-bg"><div class="sbar-fill fill-speed" style="width:${pct(horse.speed)}%"></div></div></div>
+        <div class="sbar"><div class="sbar-label">💪 ${horse.stamina}</div><div class="sbar-bg"><div class="sbar-fill fill-stamina" style="width:${pct(horse.stamina)}%"></div></div></div>
+        <div class="sbar"><div class="sbar-label">❤️ ${horse.health}</div><div class="sbar-bg"><div class="sbar-fill fill-health" style="width:${pct(horse.health)}%"></div></div></div>
+        <button class="btn btn-primary btn-block mt-sm" onclick="G.startBidding(${i})"${G.money<Math.floor(horse.value*.5)?' disabled':''}>🔨 Bid (opens ~${money(Math.floor(horse.value*.6))})</button>
+      </div>`;
+    });
+    return h;
+  },
+
+  startBidding(idx){
+    let horse=G.auctionHorses[idx];if(!horse)return;
+    let cap=RANCH_LEVELS[G.ranchLevel].cap;if(G.horses.filter(h=>!h.retired).length>=cap){G.toast('Ranch full!');return}
+    let tier=G.phase==='first_auction'?'county':(G.reputation>=40?'regional':'county');
+    let bidders=generateBidders(horse,tier);
+    if(G.phase==='first_auction')bidders.forEach(b=>{b.maxBid=Math.min(b.maxBid,Math.floor(G.money*.55)+R(-200,200))});
+    let openBid=Math.floor(horse.value*.55);
+    G._auction={horse,bidders,currentBid:openBid,playerBid:0,log:[],idx};
+    let opener=bidders.find(b=>b.active&&b.maxBid>=openBid);
+    if(opener){opener.lastBid=openBid;G._auction.log.push({icon:opener.icon,name:opener.name,amount:openBid})}
+    G.renderBidModal();
+  },
+  renderBidModal(){
+    let a=G._auction;if(!a)return;
+    let cb=a.currentBid,inc=Math.max(100,Math.floor(cb*.1));
+    let b1=cb+inc,b2=cb+inc*2,b3=cb+inc*4;
+    let html=`<h2>🔨 ${a.horse.name}</h2>
+      <div class="text-center text-xs text-muted">${a.horse.coat} ${a.horse.breed}</div>
+      <div style="background:#FFF8E1;border-radius:10px;padding:10px;margin:8px 0;text-align:center">
+        <div class="text-xs text-muted">Current Bid</div>
+        <div style="font-size:20px;font-weight:bold;color:#B8860B">${money(cb)}</div>
+        <div class="text-xs text-muted">${a.bidders.filter(b=>b.active).length} active bidders</div>
+      </div>`;
+    a.log.slice(-5).forEach(l=>{html+=`<div class="bid-row"><span class="bidder-name">${l.icon} ${l.name}</span><span class="bid-amount">${money(l.amount)}</span></div>`});
+    html+=`<div class="mt-md">
+      <button class="btn btn-gold btn-block" onclick="G.placeBid(${b1})"${G.money<b1?' disabled':''}>Bid ${money(b1)}</button>
+      <button class="btn btn-primary btn-block mt-sm" onclick="G.placeBid(${b2})"${G.money<b2?' disabled':''}>Raise ${money(b2)}</button>
+      <button class="btn btn-danger btn-block mt-sm" onclick="G.placeBid(${b3})"${G.money<b3?' disabled':''}>🔥 ${money(b3)}</button>
+      <button class="btn btn-ghost btn-block mt-sm" onclick="G._auction=null;G.closeModal()">Walk Away</button>
+    </div>`;
+    $('modal-content').innerHTML=html;$('modal-bg').classList.add('show');
+  },
+  placeBid(amount){
+    let a=G._auction;if(!a)return;
+    a.playerBid=amount;a.currentBid=amount;a.log.push({icon:'🫵',name:'You',amount});
+    let responded=false;
+    for(let b of a.bidders){
+      if(!b.active)continue;
+      if(b.maxBid>amount+R(0,300)){
+        let nb=amount+Math.max(100,Math.floor(amount*.1))+R(0,200);
+        if(nb>b.maxBid){b.active=false;continue}
+        b.lastBid=nb;a.currentBid=nb;a.log.push({icon:b.icon,name:b.name,amount:nb});responded=true;break;
+      }else b.active=false;
+    }
+    if(!responded){
+      G.money-=a.playerBid;let horse=a.horse;horse.purchaseYear=G.year;G.horses.push(horse);G.auctionHorses.splice(a.idx,1);
+      G.addEvent(`🔨 Won ${horse.name} (${horse.coat}) for ${money(a.playerBid)}!`,'auction');
+      if(G.phase==='first_auction'){G.phase='playing';G.addEvent('🌅 Welcome to '+G.ranchName+'!','neutral')}
+      G.auctionHorses.push(makeHorse({age:R(2,7)}));
+      G._auction=null;G.closeModal();G.toast(`🎉 ${horse.name} is yours!`);G.updateUI();G.tab('horses');
+    }else G.renderBidModal();
+  },
+
+  // ===== SELL CONFIRM + ANIMATED AUCTION =====
+  confirmSell(id){
+    let h=G.horses.find(x=>x.id===id);if(!h)return;
+    $('modal-content').innerHTML=`<h2>🔨 Sell ${h.name}?</h2>
+      <div class="text-center text-sm text-muted">${h.coat} ${h.breed} · ${h.tempName}</div>
+      <div class="grid-2 mt-sm">
+        <div style="background:#FFF8E1;border-radius:8px;padding:8px;text-align:center"><div class="text-xs text-muted">Speed</div><strong>${h.speed}</strong></div>
+        <div style="background:#FFF8E1;border-radius:8px;padding:8px;text-align:center"><div class="text-xs text-muted">Value</div><strong class="money">${money(h.value)}</strong></div>
+      </div>
+      <p class="text-sm text-muted text-center mt-sm">This will list ${h.name} at auction. Bidders will compete. You cannot undo this.</p>
+      <button class="btn btn-danger btn-block mt-md" onclick="G.runSellAuction(${h.id})">Confirm — Sell at Auction</button>
+      <button class="btn btn-ghost btn-block mt-sm" onclick="G.closeModal()">Cancel</button>`;
+    $('modal-bg').classList.add('show');
+  },
+
+  runSellAuction(id){
+    let h=G.horses.find(x=>x.id===id);if(!h)return;
+    let tier=G.reputation>=40?'regional':'county';
+    let bidders=generateBidders(h,tier);
+    let open=Math.floor(h.value*.5);
+    let eligible=bidders.filter(b=>b.maxBid>=open);
+    if(!eligible.length){G.closeModal();G.toast('No bidders at starting price!');return}
+    eligible.forEach(b=>{b.active=true});
+    let opener=eligible[0];opener.lastBid=open;
+    G._sellAuction={horse:h,bidders:eligible,currentBid:open,log:[{icon:opener.icon,name:opener.name,amount:open}],rounds:0};
+    G.renderSellModal();
+  },
+  renderSellModal(){
+    let a=G._sellAuction;if(!a)return;
+    let activeBidders=a.bidders.filter(b=>b.active);
+    let h=a.horse;
+    let flipCap=h.purchaseYear!=null&&(G.year-h.purchaseYear)<3;
+    let flipCeil=flipCap?Math.floor(h.value*.5):null;
+    let html=`<h2>🔨 Selling ${h.name}</h2>
+      <div class="text-center text-xs text-muted">${h.coat} ${h.breed} · Est. value ${money(h.value)}</div>
+      ${flipCap?`<div class="ev ev-bad text-xs" style="margin:6px 0">⚠️ Anti-flip cap active — bought ${G.year-h.purchaseYear} yr${G.year-h.purchaseYear!==1?'s':''} ago. Sale proceeds capped at ${money(flipCeil)} (50% of value) until Year ${h.purchaseYear+3}.</div>`:''}
+      <div style="background:#FFF8E1;border-radius:10px;padding:10px;margin:8px 0;text-align:center">
+        <div class="text-xs text-muted">Current Bid</div>
+        <div style="font-size:22px;font-weight:bold;color:#B8860B">${money(a.currentBid)}</div>
+        <div class="text-xs text-muted">${activeBidders.length} active bidder${activeBidders.length!==1?'s':''}</div>
+      </div>`;
+    a.log.slice(-6).forEach(l=>{html+=`<div class="bid-row"><span class="bidder-name">${l.icon} ${l.name}</span><span class="bid-amount">${money(l.amount)}</span></div>`});
+    html+=`<div class="mt-md">
+      <button class="btn btn-gold btn-block" onclick="G.acceptSellBid()">✅ Accept ${flipCap&&a.currentBid>flipCeil?money(flipCeil)+' (capped)':money(a.currentBid)}</button>`;
+    if(activeBidders.length>0&&a.rounds<8){
+      html+=`<button class="btn btn-primary btn-block mt-sm" onclick="G.advanceSellRound()">⏳ Wait for Higher Bids (Round ${a.rounds+1}/8)</button>`;
+    }else if(a.rounds>=8){
+      html+=`<button class="btn btn-primary btn-block mt-sm" disabled>⏳ Auction Complete</button>`;
+    }
+    html+=`<button class="btn btn-ghost btn-block mt-sm" onclick="G._sellAuction=null;G.closeModal()">Withdraw Horse</button></div>`;
+    $('modal-content').innerHTML=html;$('modal-bg').classList.add('show');
+  },
+  advanceSellRound(){
+    let a=G._sellAuction;if(!a)return;
+    a.rounds++;let raised=false;
+    for(let b of a.bidders){
+      if(!b.active)continue;
+      let nb=a.currentBid+Math.max(100,Math.floor(a.currentBid*.08))+R(0,300);
+      if(nb>b.maxBid){b.active=false;continue}
+      a.currentBid=nb;b.lastBid=nb;a.log.push({icon:b.icon,name:b.name,amount:nb});raised=true;break;
+    }
+    if(!raised)a.bidders.forEach(b=>{b.active=false});
+    G.renderSellModal();
+  },
+  acceptSellBid(){
+    let a=G._sellAuction;if(!a)return;
+    let h=a.horse,final=a.currentBid,winner=a.log.length?a.log[a.log.length-1]:null;
+    if(!winner||final<h.value*.3){G._sellAuction=null;G.closeModal();G.toast(h.name+' withdrawn — bid too low.');return}
+    // Anti-flip cap: purchased horses held < 3 years are capped at 50% of current value
+    let flipCapped=false;
+    if(h.purchaseYear!=null&&(G.year-h.purchaseYear)<3){
+      let cap=Math.floor(h.value*.5);
+      if(final>cap){final=cap;flipCapped=true;}
+    }
+    G.money+=final;G.horses=G.horses.filter(x=>x.id!==h.id);
+    G.addEvent(`🔨 Sold ${h.name} for ${money(final)} to ${winner.icon} ${winner.name}!`,'auction');
+    let logHtml=a.log.map(l=>`<div class="bid-row"><span class="bidder-name">${l.icon} ${l.name}</span><span class="bid-amount">${money(l.amount)}</span></div>`).join('');
+    G._sellAuction=null;
+    $('modal-content').innerHTML=`<h2>🔨 SOLD!</h2>
+      <div style="background:#E8F5E9;border-radius:12px;padding:16px;text-align:center;margin:8px 0">
+        <div style="font-size:36px">💰</div>
+        <div style="font-size:18px;font-weight:bold;color:#1B5E20">${h.name} sold for ${money(final)}!</div>
+        <div class="text-xs text-muted">to ${winner.icon} ${winner.name}</div>
+        ${flipCapped?`<div class="text-xs" style="color:#C0392B;margin-top:4px">⚠️ Anti-flip cap applied (held < 3 yrs)</div>`:''}
+      </div>
+      <div class="sec-sub">Bidding History</div>${logHtml}
+      <button class="btn btn-primary btn-block mt-md" onclick="G.closeModal();G.updateUI();G.tab('horses')">Continue</button>`;
+    G.updateUI();
+  },
+
+  // ===== RACE (age 3+, 10 race limit, animations, locations) =====
+  renderRace(){
+    let raceable=G.horses.filter(h=>h.age>=3&&h.age<=5&&!h.retired&&h.races<h.maxRaces);
+    let h='<div class="sec-title">Race Day</div>';
+    if(!raceable.length){
+      h+=`<div class="empty"><div class="icon">🏇</div>No race-ready horses!<br>Must be age 3–5, healthy, under 10 lifetime races.</div>`;return h;
+    }
+    h+=`<div class="sec-sub">Pick a Horse</div>`;
+    raceable.forEach(horse=>{
+      let sel=G._raceHorse===horse.id?' style="border:2px solid #8B4513;background:#FFF8F0"':'';
+      h+=`<div class="horse-card"${sel} onclick="G._raceHorse=${horse.id};G.renderTab()">
+        <div class="horse-avatar">${horse.gender==='M'?'🐴':'🐎'}</div>
+        <div class="horse-info"><div class="horse-name">${horse.name}</div>
+          <div class="horse-sub">Spd ${horse.speed} · Trn ${horse.trained} · ${horse.maxRaces-horse.races} races left</div>
+        </div>${G._raceHorse===horse.id?'<div style="font-size:18px">✅</div>':''}</div>`;
+    });
+    h+=`<div class="sec-sub mt-md">Pick a Race</div>`;
+    let selHorse=G.horses.find(x=>x.id===G._raceHorse);
+    RACES.forEach(r=>{
+      let repLocked=G.reputation<r.minRep;
+      let ageLocked=selHorse&&(selHorse.age<r.minAge||selHorse.age>r.maxAge);
+      let locked=repLocked||ageLocked,sel=G._raceType===r.id;
+      let ageLabel=r.maxAge===r.minAge?`Age ${r.minAge} only`:`Age ${r.minAge}–${r.maxAge}`;
+      h+=`<div class="card" style="cursor:pointer;opacity:${locked?.4:1};border:2px solid ${sel?'#8B4513':'transparent'};border-radius:12px"
+        onclick="${locked?'':`G._raceType='${r.id}';G.renderTab()`}">
+        <div class="flex-row"><strong>${r.icon} ${r.name}</strong>
+          <span class="text-xs" style="color:${repLocked?'#C0392B':ageLocked?'#C0392B':'#8B6A5A'}">${repLocked?'⭐ '+r.minRep:ageLabel+(ageLocked?' ✗':'')}</span>
+        </div>
+        <div class="text-xs text-muted">${r.loc} · ${r.dist} distance</div>
+        <div class="text-xs text-muted mt-sm">Entry: <span class="money">${money(r.fee)}</span> · 1st: <span class="money">${money(r.prizes[0])}</span> · 2nd: ${money(r.prizes[1])}</div>
+      </div>`;
+    });
+    h+=`<button class="btn btn-gold btn-block mt-md" onclick="G.runRace()" ${!G._raceHorse||!G._raceType?'disabled':''}>🏁 START RACE</button>`;
+    return h;
+  },
+
+  runRace(){
+    let horse=G.horses.find(x=>x.id===G._raceHorse);
+    let race=RACES.find(x=>x.id===G._raceType);if(!horse||!race)return;
+    if(horse.retired){G.toast('Retired horses cannot race!');return}
+    if(horse.age<3||horse.age>5){G.toast('Horse must be age 3–5 to race!');return}
+    if(horse.age<race.minAge||horse.age>race.maxAge){G.toast(`${race.name} requires age ${race.minAge===race.maxAge?race.minAge:race.minAge+'–'+race.maxAge}!`);return}
+    if(G.money<race.fee){G.toast('Can\'t afford!');return}
+    G.money-=race.fee;
+    G.startRaceMinigame(horse,race);
+  },
+
+  startRaceMinigame(horse,race){
+    const aiProfiles={
+      local:   {green:0.15,yellow:0.55,red:0.30},
+      regional:{green:0.18,yellow:0.54,red:0.28},
+      state:   {green:0.22,yellow:0.53,red:0.25},
+      national:{green:0.28,yellow:0.50,red:0.22},
+    };
+    let aiNames=[...CHAMP_NAMES].sort(()=>Math.random()-.5).slice(0,5);
+    let aiProfile=aiProfiles[race.id]||aiProfiles.local;
+    let ai=aiNames.map(n=>({name:n,score:0,stamina:horse.stamina+R(-10,10)}));
+    let te=TEMP_EFFECTS[horse.tempName]||{};
+    let mgState={
+      horse,race,ai,te,aiProfile,
+      check:0,totalChecks:10,
+      playerScore:0,checkLog:[],
+      staminaPool:horse.stamina,
+      fatigued:false,
+      injuryEvent:null,
+      done:false,
+      _cursorPos:0,_zoneG:18,_zoneY:52,_zoneR:30,
+    };
+    G._mg=mgState;
+    G.renderMinigame();
+  },
+
+  renderMinigame(){
+    let mg=G._mg;if(!mg)return;
+    let h=mg.horse,r=mg.race,te=mg.te;
+    let check=mg.check;
+    let baseG=18,baseY=52,baseR=30;
+    if(check<5&&te.earlyGreen!==undefined){baseG+=te.earlyGreen;baseR+=(te.earlyRed||0);}
+    else if(check>=5&&te.lateGreen!==undefined){baseG+=te.lateGreen;baseR+=(te.lateRed||0);}
+    else{baseG+=(te.green||0);baseY+=(te.yellow||0);baseR+=(te.red||0);}
+    if(te.randomZone){let rv=R(-te.randomZone,te.randomZone);baseG+=rv;baseR-=rv;}
+    baseG=Math.max(5,baseG);baseY=Math.max(5,baseY);baseR=Math.max(5,baseR);
+    let total2=baseG+baseY+baseR;
+    baseG=Math.round(baseG/total2*100);baseY=Math.round(baseY/total2*100);baseR=100-baseG-baseY;
+    let dots=mg.checkLog.map(z=>`<div class="mg-dot ${z}"></div>`).join('');
+    let remaining=10-mg.checkLog.length;
+    for(let i=0;i<remaining;i++)dots+=`<div class="mg-dot"></div>`;
+    let staminaPct=Math.round(mg.staminaPool/Math.max(1,h.stamina)*100);
+    let html=`<h2 style="margin-bottom:4px">${r.icon} ${r.name}</h2>
+      <div class="text-center text-xs text-muted">${h.name} · Check ${Math.min(check+1,10)}/10</div>
+      <div class="flex-row mt-sm" style="font-size:11px">
+        <span>⚡ <strong>${h.speed}</strong></span>
+        <span>💪 ${mg.fatigued?'<span style="color:#C0392B">FATIGUED</span>':staminaPct+'%'}</span>
+        <span>Score: <strong>${Math.round(mg.playerScore)}</strong></span>
+      </div>
+      <div style="position:relative;margin:10px 0">
+        <div class="mg-track" id="mg-track" onclick="G.doRaceCheck()">
+          <div class="mg-green" style="width:${baseG}%"></div>
+          <div class="mg-yellow" style="left:${baseG}%;width:${baseY}%"></div>
+          <div class="mg-red" style="left:${baseG+baseY}%;width:${baseR}%"></div>
+          <div class="mg-cursor" id="mg-cursor" style="left:0%"></div>
+        </div>
+        <div class="text-center text-xs text-muted" style="margin-top:2px">🟢 ${baseG}% &nbsp; 🟡 ${baseY}% &nbsp; 🔴 ${baseR}%</div>
+      </div>
+      <div class="mg-check-row">${dots}</div>
+      <button class="btn btn-gold btn-block" id="mg-btn" onclick="G.doRaceCheck()" ${mg.done?'disabled':''}>⏱ TIME IT!</button>
+      ${mg.done?'<button class="btn btn-primary btn-block mt-sm" onclick="G.finishRace()">See Results</button>':''}`;
+    mg._zoneG=baseG;mg._zoneY=baseY;mg._zoneR=baseR;
+    $('modal-content').innerHTML=html;
+    $('modal-bg').classList.add('show');
+    if(!mg.done)G.startCursor();
+  },
+
+  startCursor(){
+    if(G._cursorAnim)clearInterval(G._cursorAnim);
+    let pos=0,dir=1,speed=1.5;
+    G._cursorAnim=setInterval(()=>{
+      let el=$('mg-cursor');if(!el){clearInterval(G._cursorAnim);return}
+      pos+=dir*speed;
+      if(pos>=99){pos=99;dir=-1}
+      if(pos<=0){pos=0;dir=1}
+      el.style.left=pos+'%';
+      if(G._mg)G._mg._cursorPos=pos;
+    },16);
+  },
+
+  doRaceCheck(){
+    let mg=G._mg;if(!mg||mg.done||mg.check>=10)return;
+    if(G._cursorAnim){clearInterval(G._cursorAnim);G._cursorAnim=null}
+    let pos=mg._cursorPos||0;
+    let gW=mg._zoneG,yW=mg._zoneY;
+    let zone=pos<gW?'green':pos<gW+yW?'yellow':'red';
+    let te=mg.te;
+    let checkMod=0;
+    let rb=RANCH_LEVELS[G.ranchLevel].raceBonus;
+    if(zone==='green'){
+      let bonus=te.greenBonus!==undefined?10+te.greenBonus:10;
+      if(mg.fatigued)bonus=Math.min(bonus,5);
+      if(te.randomGreenBonus)bonus=R(te.randomGreenBonus[0],te.randomGreenBonus[1]);
+      checkMod=bonus;
+      mg.checkLog.push('green');
+    }else if(zone==='yellow'){
+      checkMod=te.yellowBonus||0;
+      if(te.yellowStaminaRestore)mg.staminaPool=Math.min(mg.horse.stamina,mg.staminaPool+te.yellowStaminaRestore);
+      mg.checkLog.push('yellow');
+    }else{
+      let penalty=te.redPenalty!==undefined?-20+te.redPenalty:-20;
+      if(te.randomRedPenalty)penalty=R(te.randomRedPenalty[0],te.randomRedPenalty[1]);
+      checkMod=penalty;
+      let injRisk=te.redInjury!==undefined?te.redInjury:0.05;
+      let hlth=calcHealth(mg.horse);
+      if(hlth>=90)injRisk-=0.02;else if(hlth>=70)injRisk-=0.01;
+      else if(hlth<30)injRisk+=0.04;else if(hlth<50)injRisk+=0.02;
+      if(expressedSpecials(mg.horse).includes('lightning'))injRisk+=0.03;
+      if(expressedSpecials(mg.horse).includes('iron'))injRisk=Math.max(0,injRisk-0.04);
+      if(Math.random()<injRisk){
+        let sev=R(1,10);
+        if(sev>=10){mg.horse.dead=true;mg.horse.deathCause='race injury';mg.horse.deathYear=G.year;mg.injuryEvent='fatal';}
+        else{mg.horse.conditions.push({name:'Race Injury',type:'injury',severity:sev,yearsUntreated:0,treatedThisYear:false});mg.horse.maxRaces=Math.max(0,mg.horse.maxRaces-sev);mg.injuryEvent='injured';}
+      }
+      mg.checkLog.push('red');
+    }
+    const raceExtraDrain={local:0,regional:1,state:2,national:3};
+    let drain=6+(raceExtraDrain[mg.race.id]||0)+(te.staminaDrain||0);
+    mg.staminaPool=Math.max(0,mg.staminaPool-drain);
+    if(mg.staminaPool<=0&&!mg.fatigued)mg.fatigued=true;
+    let fatigueMult=mg.fatigued?(te.fatigueMult||0.65):1.0;
+    let isHigh=mg.race.id==='state'||mg.race.id==='national';
+    let champBonus=(expressedSpecials(mg.horse).includes('champion')&&isHigh)?2:0;
+    let eff=(mg.horse.speed*fatigueMult)+0.35*mg.horse.trained+checkMod+rb+champBonus+R(-3,3);
+    mg.playerScore+=eff;
+    mg.ai.forEach(a=>{
+      let r2=Math.random();
+      let agz=mg.aiProfile.green,ayz=mg.aiProfile.green+mg.aiProfile.yellow;
+      let aZone=r2<agz?'green':r2<ayz?'yellow':'red';
+      let aMod=aZone==='green'?10:aZone==='red'?-20:0;
+      let aFat=(mg.check>=6&&(mg.race.id==='state'||mg.race.id==='national'))?0.85:1.0;
+      a.score+=(a.stamina*aFat*0.5+aMod+R(-5,5));
+      a.score+=mg.horse.speed*0.4;
+    });
+    mg.check++;
+    if(mg.check>=10)mg.done=true;
+    G.renderMinigame();
+  },
+
+  finishRace(){
+    let mg=G._mg;if(!mg)return;
+    if(G._cursorAnim){clearInterval(G._cursorAnim);G._cursorAnim=null;}
+    let horse=mg.horse,race=mg.race;
+    let all=[{name:horse.name,score:mg.playerScore,isPlayer:true},...mg.ai.map(a=>({name:a.name,score:a.score,isPlayer:false}))];
+    all.sort((a,b)=>b.score-a.score);
+    let place=all.findIndex(x=>x.isPlayer)+1;
+    if(expressedSpecials(horse).includes('truegrit')&&place>3)place=3;
+    let prize=race.prizes[place-1]||0;
+    if(prize>0){G.money+=prize;G.legacy.totalEarnings=(G.legacy.totalEarnings||0)+prize;}
+    if(place===1){
+      horse.wins++;G.reputation=Math.min(100,G.reputation+R(3,8));
+      G.legacy.wins.push({year:G.year,horse:horse.name,race:race.name,prize});
+      if(race.id==='national')G.legacy.champWins.push({year:G.year,horse:horse.name});
+    }
+    if(place===2)G.reputation=Math.min(100,G.reputation+R(1,4));
+    if(place<=3)horse.value=Math.floor(horse.value*1.15);
+    horse.races++;
+    if(horse.races>=3)horse.discovered.expression=true;
+    let placeEmoji=['🥇','🥈','🥉','4️⃣','5️⃣','6️⃣'][Math.min(place-1,5)];
+    let placeText=['1st Place!','2nd Place!','3rd Place!','4th Place','5th Place','6th Place'][Math.min(place-1,5)];
+    let bg=place===1?'#FFF8E1':place===2?'#F3E5F5':place===3?'#E8F5E9':'#FFEBEE';
+    let resultHtml;
+    if(mg.injuryEvent==='fatal'){
+      G.horses=G.horses.filter(x=>x.id!==horse.id);
+      G.addEvent(`💔 ${horse.name} suffered a fatal injury at ${race.name}.`,'death');
+      resultHtml=`<div style="background:#FFEBEE;border-radius:12px;padding:18px;text-align:center">
+        <div style="font-size:40px">💔</div>
+        <div style="font-size:16px;font-weight:bold;color:#7F0000">${horse.name} broke a leg.</div>
+      </div>`;
+    }else{
+      let injNote=mg.injuryEvent==='injured'?'<div class="text-xs" style="color:#C0392B;margin-top:4px">⚠️ Injured during race!</div>':'';
+      resultHtml=`<div style="background:${bg};border-radius:12px;padding:18px;text-align:center">
+        <div style="font-size:44px">${placeEmoji}</div>
+        <div style="font-size:18px;font-weight:bold;color:#3D1C02">${placeText}</div>
+        <div class="text-sm text-muted">${horse.name} at ${race.name}</div>
+        ${prize?'<div class="money" style="font-size:16px;margin-top:4px">+'+money(prize)+'</div>':''}
+        ${injNote}
+      </div>
+      <div class="text-xs text-muted mt-sm text-center">Score: ${Math.round(mg.playerScore)} · Field: ${all.map(a=>a.name.split(' ')[0]).join(', ')}</div>`;
+      G.addEvent(`🏁 ${horse.name} — ${placeText} at ${race.name}${prize?' (+'+money(prize)+')':''}${mg.injuryEvent==='injured'?' (injured!)':''}`,place<=3?'race':'neutral');
+    }
+    $('modal-content').innerHTML=resultHtml+`<button class="btn btn-primary btn-block mt-sm" onclick="G._mg=null;G.closeModal();G.renderTab()">Continue</button>`;
+    refreshStats(horse);G.updateUI();
+    G._mg=null;
+  },
+
+  // ===== RANCH + BREEDING WITH STATS =====
+  renderRanch(){
+    let lvl=RANCH_LEVELS[G.ranchLevel];
+    let activeCount=G.horses.filter(x=>!x.retired).length;
+    let h=`<div class="sec-title">Ranch</div>
+      <div class="card text-center"><div style="font-size:36px">🏡</div>
+        <div style="font-size:15px;font-weight:bold;color:#3D1C02">${lvl.name}</div>
+        <div class="text-xs text-muted">Active ${activeCount}/${lvl.cap} · Race +${lvl.raceBonus} · Breed +${lvl.breedBonus} · Maint ${money(lvl.maint)}/yr</div>
+        ${G.retired.length?`<div class="text-xs text-muted">${G.retired.length} retired horse${G.retired.length!==1?'s':''} (not counted toward cap)</div>`:''}
+      </div>`;
+    for(let i=G.ranchLevel+1;i<=4;i++){
+      let nl=RANCH_LEVELS[i];
+      h+=`<div class="card"><div class="flex-row"><strong>${nl.name}</strong>${i===G.ranchLevel+1?
+        `<button class="btn btn-gold btn-sm" onclick="G.upgradeRanch()" ${G.money>=nl.cost?'':'disabled'}>${money(nl.cost)}</button>`:
+        '<span class="text-xs text-muted">🔒</span>'}</div>
+        <div class="text-xs text-muted mt-sm">Cap ${nl.cap} · Race +${nl.raceBonus} · Breed +${nl.breedBonus}</div></div>`;
+    }
+    // Pregnancies
+    if(G.pregnancies.length){
+      h+=`<div class="sec-title mt-md">🤰 Expecting</div>`;
+      G.pregnancies.forEach(p=>{
+        let yl=p.dueYear-G.year;
+        h+=`<div class="card" style="border-left:4px solid #E91E63"><div class="flex-row">
+          <div><strong>${p.damName}</strong> × ${p.sireName}</div>
+          <span class="tag" style="background:#FCE4EC;color:#880E4F">${yl<=0?'Due now!':'Due in '+yl+' yr'}</span>
+        </div>
+        ${p.twins?'<div class="text-xs text-muted mt-sm">🎀 Twins suspected!</div>':''}
+        </div>`;
+      });
+    }
+    // Retired horses summary
+    if(G.retired.length){
+      h+=`<div class="sec-title mt-md">🏡 Retired</div>`;
+      G.retired.forEach(r=>{
+        h+=`<div class="card" style="background:#F5F5F5;border-left:4px solid #9E9E9E;padding:8px;cursor:pointer" onclick="G.showHorseDetail(${r.id})">
+          <div class="flex-row"><div><strong>${r.name}</strong> <span class="tag" style="background:#E0E0E0;color:#424242">🏡</span></div>
+            <span class="text-xs text-muted">Age ${r.age} · 🏆 ${r.wins}W</span>
+          </div>
+          <div class="text-xs text-muted">${r.coat} ${r.breed}</div>
+        </div>`;
+      });
+    }
+    // Breeding with full stat display
+    h+=`<div class="sec-title mt-md">🌸 Breeding</div>`;
+    let males=G.horses.filter(x=>x.gender==='M'&&x.age>=2&&!x.retired);
+    let pregIds=G.pregnancies.map(p=>p.damId);
+    let females=G.horses.filter(x=>x.gender==='F'&&x.age>=2&&!pregIds.includes(x.id)&&!x.retired&&!x.menopausal);
+    if(!males.length||!females.length){
+      h+=`<div class="card text-center text-sm text-muted">${!males.length?'No stallions (age 2+).':'No available mares.'}</div>`;
+    }else if(activeCount+G.pregnancies.length>=lvl.cap){
+      h+=`<div class="card text-center text-sm" style="color:#C0392B">At capacity!</div>`;
+    }else{
+      h+=`<div class="card text-xs text-muted">$500 vet fee · 1 year gestation · ~5% twins (risky) · 1% chance of special gene mutation</div>
+        <div class="grid-2 mt-sm">
+          <div><div class="text-xs" style="font-weight:bold;color:#1565C0">♂ Sire</div>
+            <select id="sel-sire" onchange="G.updateBreedPreview()">${males.map(m=>`<option value="${m.id}">${m.name}</option>`).join('')}</select></div>
+          <div><div class="text-xs" style="font-weight:bold;color:#880E4F">♀ Dam</div>
+            <select id="sel-dam" onchange="G.updateBreedPreview()">${females.map(f=>`<option value="${f.id}">${f.name}</option>`).join('')}</select></div>
+        </div>
+        <div id="breed-preview" class="mt-sm"></div>
+        <button class="btn btn-green btn-block mt-sm" onclick="G.breed()">🌸 Breed ($500)</button>
+        <div id="inbreed-warn" class="text-xs mt-sm text-center" style="color:#C0392B"></div>`;
+      setTimeout(()=>G.updateBreedPreview(),30);
+    }
+    return h;
+  },
+
+  updateBreedPreview(){
+    let ss=$('sel-sire'),sd=$('sel-dam'),prev=$('breed-preview'),warn=$('inbreed-warn');
+    if(!ss||!sd||!prev)return;
+    let sire=G.horses.find(x=>x.id===+ss.value),dam=G.horses.find(x=>x.id===+sd.value);
+    if(!sire||!dam)return;
+    let coeff=calcInbreeding(sire.id,dam.id,allHorses);
+    prev.innerHTML=`<div class="grid-2">
+      <div class="card" style="padding:8px;margin:0"><div class="text-xs" style="font-weight:bold;color:#1565C0">♂ ${sire.name}</div>
+        <div class="sbar"><div class="sbar-label">⚡ ${sire.speed}</div><div class="sbar-bg"><div class="sbar-fill fill-speed" style="width:${pct(sire.speed)}%"></div></div></div>
+        <div class="sbar"><div class="sbar-label">💪 ${sire.stamina}</div><div class="sbar-bg"><div class="sbar-fill fill-stamina" style="width:${pct(sire.stamina)}%"></div></div></div>
+        <div class="sbar"><div class="sbar-label">❤️ ${sire.health}</div><div class="sbar-bg"><div class="sbar-fill fill-health" style="width:${pct(sire.health)}%"></div></div></div>
+        <div class="text-xs text-muted mt-sm">${sire.tempName} · ${sire.coat}</div>
+        <div class="text-xs text-muted">Sp:${sire.genes.Sp.join('/')} St:${sire.genes.St.join('/')}</div>
+        ${sire.tested?'<div class="text-xs text-muted">Hh:'+sire.genes.Hh.join('/')+' Tr:'+sire.genes.Tr.join('/')+'</div>':''}
+      </div>
+      <div class="card" style="padding:8px;margin:0"><div class="text-xs" style="font-weight:bold;color:#880E4F">♀ ${dam.name}</div>
+        <div class="sbar"><div class="sbar-label">⚡ ${dam.speed}</div><div class="sbar-bg"><div class="sbar-fill fill-speed" style="width:${pct(dam.speed)}%"></div></div></div>
+        <div class="sbar"><div class="sbar-label">💪 ${dam.stamina}</div><div class="sbar-bg"><div class="sbar-fill fill-stamina" style="width:${pct(dam.stamina)}%"></div></div></div>
+        <div class="sbar"><div class="sbar-label">❤️ ${dam.health}</div><div class="sbar-bg"><div class="sbar-fill fill-health" style="width:${pct(dam.health)}%"></div></div></div>
+        <div class="text-xs text-muted mt-sm">${dam.tempName} · ${dam.coat}</div>
+        <div class="text-xs text-muted">Sp:${dam.genes.Sp.join('/')} St:${dam.genes.St.join('/')}</div>
+        ${dam.tested?'<div class="text-xs text-muted">Hh:'+dam.genes.Hh.join('/')+' Tr:'+dam.genes.Tr.join('/')+'</div>':''}
+      </div>
+    </div>`;
+    if(warn){
+      if(coeff>.06)warn.innerHTML='⚠️ '+inbreedLabel(coeff)+' ('+(coeff*100).toFixed(1)+'%)';
+      else if(coeff>.03)warn.innerHTML='ℹ️ Line-bred ('+(coeff*100).toFixed(1)+'%)';
+      else warn.innerHTML='✅ Outcross';
+    }
+  },
+
+  treatCondition(horseId,condIdx){
+    let h=G.horses.find(x=>x.id===horseId);if(!h)return;
+    let cond=h.conditions[condIdx];if(!cond)return;
+    let health=calcHealth(h);
+    let m=100-health;
+    let cost=Math.round(120+10*m+0.4*m*m);
+    if(G.money<cost){G.toast(`Need ${money(cost)}!`);return}
+    G.money-=cost;
+    // Restore health only — severity and maxRaces are permanent
+    let restored=Math.round(10+0.32*m);
+    h.healPool=(h.healPool||0)+restored;
+    cond.treatedThisYear=true;
+    cond.yearsUntreated=0;
+    refreshStats(h);G.toast(`${h.name} treated! -${money(cost)}`);
+    G.showHorseDetail(horseId);G.updateUI();
+  },
+
+  retireHorse(id){
+    let h=G.horses.find(x=>x.id===id);if(!h)return;
+    h.retired=true;
+    G.horses=G.horses.filter(x=>x.id!==id);
+    G.retired.push(h);
+    G.addEvent(`🏡 ${h.name} has been retired to pasture.`,'neutral');
+    G.toast(`${h.name} retired!`);G.closeModal();G.updateUI();G.renderTab();
+  },
+
+  breed(){
+    let ss=$('sel-sire'),sd=$('sel-dam');if(!ss||!sd)return;
+    let sire=G.horses.find(x=>x.id===+ss.value),dam=G.horses.find(x=>x.id===+sd.value);
+    if(!sire||!dam)return;if(G.money<500){G.toast('Need $500!');return}
+    if(dam.menopausal){G.toast(dam.name+' is menopausal — cannot breed!');return}
+    if(dam.retired||sire.retired){G.toast('Cannot breed retired horses!');return}
+    if(G.pregnancies.some(p=>p.damId===dam.id)){G.toast(dam.name+' already pregnant!');return}
+    let cap=RANCH_LEVELS[G.ranchLevel].cap;
+    let activeCount2=G.horses.filter(h=>!h.retired).length;
+    if(activeCount2+G.pregnancies.length>=cap){G.toast('At capacity!');return}
+    G.money-=500;let twins=Math.random()<.05;
+    G.pregnancies.push({sireId:sire.id,damId:dam.id,sireName:sire.name,damName:dam.name,dueYear:G.year+1,twins});
+    G.addEvent(`🤰 ${dam.name} is pregnant by ${sire.name}! Due next year.${twins?' 🎀 Twins suspected!':''}`,twins?'good':'neutral');
+    G.toast(`🤰 ${dam.name} expecting!`);G.updateUI();G.renderTab();
+  },
+
+  deliverFoals(){
+    let due=G.pregnancies.filter(p=>p.dueYear<=G.year);
+    G.pregnancies=G.pregnancies.filter(p=>p.dueYear>G.year);
+    due.forEach(p=>{
+      try{
+      let sire=allHorses.find(x=>x.id===p.sireId),dam=G.horses.find(x=>x.id===p.damId);
+      if(!sire||!dam){G.addEvent(`💔 ${p.damName}'s pregnancy lost — no longer on ranch.`,'bad');return}
+      // Lethal white
+      if(sire.genes.To[0]==='To'&&sire.genes.To[1]==='To'&&dam.genes.To[0]==='To'&&dam.genes.To[1]==='To'&&Math.random()<.25){
+        G.addEvent(`💔 ${p.sireName} × ${p.damName} foal born Lethal White — did not survive.`,'death');return}
+      // Foal success chance
+      let fsc=foalSuccessChance(dam);
+      if(Math.random()>fsc){
+        // Failed birth — single roll, mutually exclusive outcomes
+        // 0–2%: dam dies; 2–14%: dam injured (exactly 12%); 14–100%: stillbirth only
+        let failRoll=Math.random();
+        if(failRoll<0.02){
+          dam.dead=true;dam.deathCause='birth complication';dam.deathYear=G.year;
+          G.horses=G.horses.filter(x=>x.id!==dam.id);
+          G.addEvent(`💔 ${dam.name} died during birth. Foal lost.`,'death');
+        }else if(failRoll<0.14){
+          dam.conditions.push({name:'Birth Injury',type:'injury',severity:R(2,5),yearsUntreated:0,treatedThisYear:false});
+          refreshStats(dam);
+          G.addEvent(`⚠️ ${dam.name} suffered a birth injury — foal did not survive.`,'bad');
+        }else{
+          G.addEvent(`💔 ${dam.name}'s foal did not survive birth.`,'bad');
+        }
+        return;
+      }
+      let count=p.twins?2:1;
+      if(p.twins&&Math.random()<.3){count=1;dam.conditions.push({name:'Twin Complication',type:'injury',severity:R(2,4),yearsUntreated:0,treatedThisYear:false});refreshStats(dam);
+        G.addEvent(`⚠️ Twin complications for ${dam.name} — only one foal survived.`,'bad')}
+      if(p.twins&&Math.random()<.05){dam.dead=true;dam.deathCause='birth';dam.deathYear=G.year;
+        G.horses=G.horses.filter(x=>x.id!==dam.id);G.addEvent(`💔 ${dam.name} died during twin birth.`,'death')}
+      let cap=RANCH_LEVELS[G.ranchLevel].cap;
+      for(let i=0;i<count;i++){
+        if(G.horses.filter(h=>!h.retired).length>=cap){G.addEvent(`🏠 No room for foal!`,'bad');break}
+        let foal=breedFoal(sire,dam);
+        if(!foal){G.addEvent(`💔 Stillborn foal from ${p.damName}.`,'death');continue}
+        let bonus=RANCH_LEVELS[G.ranchLevel].breedBonus;
+        if(bonus>0){foal.speed=clamp(foal.speed+R(0,bonus),1,100);foal.stamina=clamp(foal.stamina+R(0,bonus),1,100)}
+        if(foal.inbreedCoeff>.2&&Math.random()<.4){foal.conditions.push({name:'Inbred Sickness',type:'sickness',severity:2,yearsUntreated:0,treatedThisYear:false});foal.health=calcHealth(foal);
+          G.addEvent(`👶 ${foal.name} born sickly (inbred).`,'bad')}
+        if(p.twins){foal.speed=clamp(foal.speed-R(3,8),1,100);foal.stamina=clamp(foal.stamina-R(3,8),1,100)}
+        foal.health=Math.max(15,calcHealth(foal));
+        G.horses.push(foal);
+        if(foal.mutationGene){G.showMutationReel(foal);}
+        let sp=expressedSpecials(foal),sm=sp.length?' — '+sp.map(s=>SPECIAL_INFO[s].icon+' '+SPECIAL_INFO[s].name).join(', ')+'!':'';
+        G._yearSummary.push(`🐣 ${foal.name} born! ${foal.coat} ${foal.gender==='M'?'colt':'filly'}${p.twins?' (twin)':''}${sm}`);
+        G.addEvent(`🐣 ${sire.name} × ${dam.name} = <strong>${foal.name}</strong>! ${foal.coat} ${foal.gender==='M'?'colt':'filly'}${sm}`,'good');
+      }
+      if(p.twins&&count===2)G.addEvent(`🎉 Twins from ${dam.name}!`,'good');
+      }catch(e){console.error('Delivery error:',e);G.addEvent(`💔 Complication during ${p.damName}'s delivery.`,'bad')}
+    });
+  },
+
+  upgradeRanch(){
+    let n=G.ranchLevel+1;if(n>4)return;let nl=RANCH_LEVELS[n];
+    if(G.money<nl.cost){G.toast('Not enough!');return}
+    G.money-=nl.cost;G.ranchLevel=n;
+    G.addEvent(`🏠 Upgraded to ${nl.name}!`,'good');G.toast('🎉 '+nl.name+'!');G.updateUI();G.renderTab();
+  },
+
+  // ===== NEXT YEAR + SUMMARY POPUP =====
+  confirmNextYear(){
+    if(G.phase!=='playing'){G.toast('Buy a stallion first!');return}
+    let lvl=RANCH_LEVELS[G.ranchLevel];
+    let activeH2=G.horses.filter(h=>!h.retired);
+    let upkeepEst=activeH2.length*400+G.retired.length*150+activeH2.reduce((s,h)=>s+200+(h.age>14?300:0)-(h.age<2?150:0),0)+lvl.maint;
+    let html=`<h2>📅 Advance to Year ${G.year+1}?</h2>
+      <div class="text-center text-sm text-muted" style="margin:8px 0">Horses age, pregnancies resolve, upkeep is paid, and a random event fires.</div>
+      <div style="background:#FFF8E1;border-radius:10px;padding:10px;margin:8px 0">
+        <div class="flex-row" style="margin-bottom:4px"><span class="text-sm">Horses on ranch:</span><strong>${G.horses.filter(h=>!h.retired).length} active${G.retired.length?' + '+G.retired.length+' retired':''}</strong></div>
+        <div class="flex-row" style="margin-bottom:4px"><span class="text-sm">Pregnancies due:</span><strong>${G.pregnancies.filter(p=>p.dueYear<=G.year+1).length}</strong></div>
+        <div class="flex-row"><span class="text-sm">Estimated upkeep:</span><strong class="money">~${money(upkeepEst)}</strong></div>
+      </div>
+      <div class="text-xs text-muted text-center">Balance after upkeep: <span class="money">~${money(Math.max(0,G.money-upkeepEst))}</span></div>
+      <button class="btn btn-gold btn-block mt-md" onclick="G.closeModal();G.nextYear()">✅ Advance to Year ${G.year+1}</button>
+      <button class="btn btn-ghost btn-block mt-sm" onclick="G.closeModal()">Stay in Year ${G.year}</button>`;
+    $('modal-content').innerHTML=html;$('modal-bg').classList.add('show');
+  },
+
+  nextYear(){
+    if(G.phase!=='playing'){G.toast('Buy a stallion first!');return}
+    G.year++;G._yearSummary=[];
+    G.deliverFoals();
+    // Upkeep (retired horses cost half rate)
+    let lvl=RANCH_LEVELS[G.ranchLevel];
+    let activeH=G.horses.filter(h=>!h.retired);
+    let feed=activeH.length*400+G.retired.length*150;
+    let vet=activeH.reduce((s,h)=>s+200+(h.age>14?300:0)-(h.age<2?150:0),0);
+    let up=feed+vet+lvl.maint;
+    G.money=Math.max(0,G.money-up);
+    G._yearSummary.push(`📋 Upkeep: ${money(up)}`);
+    // Age all horses (including retired)
+    let died=[];
+    let allManaged=[...G.horses,...G.retired];
+    allManaged.forEach(h=>{
+      h.age++;
+      if(h.healPool>0)h.healPool=Math.max(0,h.healPool-5);
+      if(!h.retired){
+        if(h.age>15){h.speed=Math.max(1,h.speed-R(1,3));h.stamina=Math.max(1,h.stamina-R(1,2))}
+        worsenConditions(G,h);
+        rollMenopause(G,h);
+        refreshStats(h);
+        if(h.age>20&&Math.random()<(h.age-20)*.15){h.dead=true;h.deathCause='old age';h.deathYear=G.year;died.push(h.name)}
+        if(h.health<=0&&h.age>0){h.dead=true;h.deathCause='health';h.deathYear=G.year;died.push(h.name)}
+      } else {
+        // Retired: age only, small stat decay
+        if(h.age>15){h.speed=Math.max(1,h.speed-R(0,1));h.stamina=Math.max(1,h.stamina-R(0,1))}
+        refreshStats(h);
+        if(h.age>22&&Math.random()<(h.age-22)*.1){h.dead=true;h.deathCause='old age';h.deathYear=G.year;died.push(h.name)}
+      }
+    });
+    if(died.length){G._yearSummary.push(`🕊️ Passed away: ${died.join(', ')}`);G.addEvent(`🕊️ ${died.join(', ')} passed away.`,'death')}
+    G.horses=G.horses.filter(h=>!h.dead);
+    G.retired=G.retired.filter(h=>!h.dead);
+    // Random event
+    let evResult=G.fireRandomEvent();if(evResult)G._yearSummary.push(evResult);
+    // Annual stud offer rolls
+    G._pendingStudOffers=G._pendingStudOffers||[];
+    G.horses.filter(h=>h.gender==='M'&&!h.retired&&!h.dead&&h.wins>=1).forEach(h=>{
+      if(Math.random()<studOfferChance(h)){
+        let fee=studOfferFee(h);
+        G._pendingStudOffers.push({horseId:h.id,horseName:h.name,fee});
+      }
+    });
+    // Refresh auction (5-8 horses normally)
+    if(G.year%2===0||G.auctionHorses.length<3){
+      let count=R(5,8);G.auctionHorses=[];
+      for(let i=0;i<count;i++)G.auctionHorses.push(makeHorse({age:R(2,7)}));
+      if(Math.random()<.15)G.auctionHorses.push(makeHorse({age:R(2,5),tier:'high'}));
+    }
+    G.updateUI();G.showYearSummary();
+  },
+
+  fireRandomEvent(){
+    let roll=Math.random(),pool;
+    let activeHorses=G.horses.filter(h=>!h.retired);
+    if(roll<.01&&activeHorses.length>1)pool=EVENTS.catastrophic;
+    else if(roll<.05&&activeHorses.length>0)pool=EVENTS.severe;
+    else if(roll<.18&&activeHorses.length>0)pool=EVENTS.moderate;
+    else if(roll<.4&&activeHorses.length>0)pool=EVENTS.mild;
+    else pool=EVENTS.good;
+    let ev=pick(pool),target=activeHorses.length?pick(activeHorses):null;
+    let text=ev.text.replace('{name}',target?target.name:'a horse');
+    let extra=ev.fx(G,target);if(typeof extra==='string')text+=' '+extra;
+    G.horses=G.horses.filter(h=>!h.dead);G.horses.forEach(h=>refreshStats(h));
+    G.addEvent(text,ev.type==='death'?'death':ev.type);
+    return text;
+  },
+
+  showYearSummary(){
+    let items=G._yearSummary;
+    let html=`<h2>📅 Year ${G.year} Summary</h2><div class="year-summary">`;
+    items.forEach(i=>{html+=`<div class="sum-item">${i}</div>`});
+    if(!items.length)html+=`<div class="sum-item text-muted">A quiet year on the ranch.</div>`;
+    html+=`</div><div class="mt-sm text-center"><div class="money" style="font-size:16px">Balance: ${money(G.money)}</div>
+      <div class="text-xs text-muted">${G.horses.filter(h=>!h.retired).length} active · ${G.retired.length} retired · ${G.pregnancies.length} expecting</div></div>
+      <button class="btn btn-gold btn-block mt-md" onclick="G.closeModal();G.checkStudOffers()">Continue</button>`;
+    $('modal-content').innerHTML=html;$('modal-bg').classList.add('show');
+  },
+
+  // ===== MUTATION REEL =====
+  showMutationReel(foal){
+    let sg=foal.mutationGene;
+    let info=SPECIAL_INFO[sg];
+    let allTraits=SPECIAL_GENES;
+    let cards=[];
+    for(let i=0;i<24;i++){let t=i===19?sg:pick(allTraits);cards.push(t);}
+    let cardHtml=cards.map((t,i)=>{
+      let inf=SPECIAL_INFO[t];
+      return `<div class="reel-card" id="rc-${i}"><div class="r-icon">${inf.icon}</div><div class="r-name">${inf.name}</div><div class="r-sub">${TRAIT_SUBS[t]||''}</div></div>`;
+    }).join('');
+    let overlay=document.createElement('div');
+    overlay.id='mutation-reveal';
+    overlay.style.cssText='position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(44,24,16,.95);display:flex;align-items:center;justify-content:center;z-index:400;padding:20px';
+    overlay.innerHTML=`<div style="background:#F5E6C8;border-radius:18px;padding:20px 16px;max-width:380px;width:100%;text-align:center">
+      <div style="font-size:28px">✨</div>
+      <h2 style="color:#3D1C02;margin-bottom:4px">Mutation!</h2>
+      <div class="text-xs text-muted" style="margin-bottom:8px">${foal.name} carries a rare trait</div>
+      <div class="reel-wrap"><div class="reel-strip" id="reel-strip">${cardHtml}</div></div>
+      <div id="reel-result" style="display:none;margin-top:10px"></div>
+      <button class="btn btn-ghost btn-block mt-sm" id="reel-continue" style="display:none" onclick="document.getElementById('mutation-reveal').remove()">Continue</button>
+    </div>`;
+    $('app').appendChild(overlay);
+    let cardW=88;
+    let targetOffset=-(19*cardW-(300/2-cardW/2));
+    let strip=document.getElementById('reel-strip');
+    strip.style.transform='translateX(0px)';
+    setTimeout(()=>{strip.style.transform=`translateX(${targetOffset}px)`;},50);
+    setTimeout(()=>{
+      let winCard=document.getElementById('rc-19');
+      if(winCard)winCard.classList.add('winner');
+      let res=document.getElementById('reel-result');
+      if(res){
+        res.innerHTML=`<div class="tag tag-special" style="font-size:14px;padding:6px 14px">${info.icon} ${info.name}</div>
+          <div class="text-sm" style="color:#6B3A2A;margin-top:6px">${info.desc}</div>`;
+        res.style.display='block';
+      }
+      let btn=document.getElementById('reel-continue');
+      if(btn)btn.style.display='block';
+    },2900);
+  },
+
+  // ===== FAMILY TREE =====
+  showFamilyTree(id){
+    let root=allHorses.find(x=>x.id===id)||G.retired.find(x=>x.id===id);if(!root)return;
+    function getAnc(horseId,gen){
+      if(gen>4||!horseId)return'';
+      let h2=allHorses.find(x=>x.id===horseId);
+      if(!h2)return`<div class="text-xs text-muted" style="margin-left:${gen*12}px">Unknown</div>`;
+      let sp2=expressedSpecials(h2).map(s=>SPECIAL_INFO[s].icon).join('');
+      let tags=`<span class="tag tag-${h2.gender==='M'?'m':'f'}">${h2.gender==='M'?'♂':'♀'}</span>`;
+      if(h2.dead)tags+=`<span class="tag" style="background:#EEEEEE;color:#424242">💀</span>`;
+      else if(h2.retired)tags+=`<span class="tag" style="background:#E0E0E0;color:#424242">🏡</span>`;
+      if(sp2)tags+=`<span class="tag tag-special">${sp2}</span>`;
+      let html2=`<div style="margin-left:${gen*12}px;padding:4px 6px;border-left:2px solid #D4A017;margin-bottom:3px">
+        <span style="font-size:11px;font-weight:bold;color:#3D1C02">${h2.name}</span> ${tags}
+        <span class="text-xs text-muted"> ${h2.coat}</span>
+      </div>`;
+      if(gen<4){html2+=getAnc(h2.sireId,gen+1);html2+=getAnc(h2.damId,gen+1);}
+      return html2;
+    }
+    let html=`<h2>🌳 ${root.name}'s Family Tree</h2><div style="max-height:60vh;overflow-y:auto">`;
+    let sire2=allHorses.find(x=>x.id===root.sireId),dam2=allHorses.find(x=>x.id===root.damId);
+    if(!sire2&&!dam2){html+=`<div class="text-sm text-muted text-center">No known ancestors.</div>`;}
+    else{
+      if(sire2){html+=`<div class="sec-sub">Sire Line</div>${getAnc(root.sireId,0)}`;}
+      if(dam2){html+=`<div class="sec-sub">Dam Line</div>${getAnc(root.damId,0)}`;}
+    }
+    html+=`</div><button class="btn btn-ghost btn-block mt-sm" onclick="G.showHorseDetail(${id})">← Back</button>`;
+    $('modal-content').innerHTML=html;$('modal-bg').classList.add('show');
+  },
+
+  // ===== RENAME HORSE =====
+  renameHorse(id){
+    let h=G.horses.find(x=>x.id===id);if(!h)return;
+    $('modal-content').innerHTML=`<h2>✏️ Rename ${h.name}</h2>
+      <input id="rename-input" value="${h.name}" maxlength="20" style="width:100%;padding:9px;border:2px solid #D4A017;border-radius:8px;font-family:Georgia,serif;font-size:13px;text-align:center;margin-bottom:10px;background:#fff">
+      <button class="btn btn-gold btn-block" onclick="G.confirmRename(${id})">Rename</button>
+      <button class="btn btn-ghost btn-block mt-sm" onclick="G.showHorseDetail(${id})">Cancel</button>`;
+    $('modal-bg').classList.add('show');
+  },
+  confirmRename(id){
+    let h=G.horses.find(x=>x.id===id);if(!h)return;
+    let name=$('rename-input').value.trim();
+    if(!name||name.length<1)return;
+    h.name=name.substring(0,20);
+    G.toast(`Renamed to ${h.name}!`);G.showHorseDetail(id);
+  },
+
+  // ===== STUD OFFERS =====
+  checkStudOffers(){
+    if(!G._pendingStudOffers||!G._pendingStudOffers.length){G.tab('home');return}
+    let offer=G._pendingStudOffers.shift();
+    let h=G.horses.find(x=>x.id===offer.horseId);
+    if(!h){G.checkStudOffers();return}
+    $('modal-content').innerHTML=`<h2>💰 Stud Offer</h2>
+      <div class="text-center" style="font-size:28px">${h.gender==='M'?'🐴':'🐎'}</div>
+      <div class="text-center" style="font-weight:bold;font-size:15px;color:#3D1C02">${h.name}</div>
+      <div class="text-center text-xs text-muted">${h.coat} ${h.breed} · ${h.tempName}</div>
+      <div style="background:#FFF8E1;border-radius:10px;padding:10px;margin:10px 0;text-align:center">
+        <div class="text-xs text-muted">Stud Fee Offer</div>
+        <div style="font-size:22px;font-weight:bold;color:#B8860B">${money(offer.fee)}</div>
+        <div class="text-xs text-muted">one-season offer</div>
+      </div>
+      <div class="grid-2 mt-sm">
+        <div style="background:#FFF8E1;border-radius:8px;padding:8px;text-align:center"><div class="text-xs text-muted">Wins</div><strong>🏆 ${h.wins}</strong></div>
+        <div style="background:#FFF8E1;border-radius:8px;padding:8px;text-align:center"><div class="text-xs text-muted">Bloodline</div><strong>${((h.bloodlineTier||'mid').charAt(0).toUpperCase()+(h.bloodlineTier||'mid').slice(1))}</strong></div>
+      </div>
+      <button class="btn btn-gold btn-block mt-md" onclick="G.acceptStudOffer(${h.id},${offer.fee})">✅ Accept +${money(offer.fee)}</button>
+      <button class="btn btn-ghost btn-block mt-sm" onclick="G.closeModal();G.checkStudOffers()">Decline</button>`;
+    $('modal-bg').classList.add('show');
+  },
+  acceptStudOffer(id,fee){
+    let h=G.horses.find(x=>x.id===id);
+    G.money+=fee;
+    G.addEvent(`💰 ${h?h.name:'Unknown'} earned ${money(fee)} in stud fees!`,'good');
+    G.toast(`+${money(fee)} stud fee!`);
+    G.closeModal();G.updateUI();G.checkStudOffers();
+  },
+
+  // ===== LEGACY TAB =====
+  renderLegacy(){
+    let totalEarnings=G.legacy.totalEarnings||0;
+    let totalWins=G.legacy.wins.length;
+    let derbyWins=G.legacy.champWins.length;
+    let h=`<div class="sec-title">🏆 Legacy</div>`;
+    h+=`<div class="card" style="background:linear-gradient(135deg,#FFF8E1,#F5E6C8);border:1px solid #D4A017">
+      <div class="grid-2">
+        <div style="text-align:center"><div class="text-xs text-muted">Total Wins</div><div style="font-size:20px;font-weight:bold;color:#3D1C02">🏆 ${totalWins}</div></div>
+        <div style="text-align:center"><div class="text-xs text-muted">Career Earnings</div><div style="font-size:16px;font-weight:bold" class="money">${money(totalEarnings)}</div></div>
+      </div>
+      ${derbyWins?`<div class="text-center mt-sm"><span class="tag tag-special" style="font-size:11px">👑 ${derbyWins} Kentucky Derby Win${derbyWins!==1?'s':''}</span></div>`:''}
+    </div>`;
+    if(G.legacy.wins.length){
+      let byHorse={};
+      G.legacy.wins.forEach(w=>{
+        if(!byHorse[w.horse])byHorse[w.horse]={wins:0,earnings:0,races:[]};
+        byHorse[w.horse].wins++;byHorse[w.horse].earnings+=w.prize||0;byHorse[w.horse].races.push(w);
+      });
+      h+=`<div class="sec-sub mt-md">By Horse</div>`;
+      Object.entries(byHorse).sort((a,b)=>b[1].wins-a[1].wins).forEach(([name,data])=>{
+        let isDerby=G.legacy.champWins.some(w=>w.horse===name);
+        h+=`<div class="card" style="${isDerby?'border-left:4px solid #D4A017;background:linear-gradient(135deg,#FFF8E1,#fff)':''}">
+          <div class="flex-row"><strong>${isDerby?'👑 ':''} ${name}</strong><span class="money">${money(data.earnings)}</span></div>
+          <div class="text-xs text-muted">🏆 ${data.wins} win${data.wins!==1?'s':''}</div>
+          <div class="text-xs text-muted mt-sm">${data.races.map(r=>`${r.race} (Yr ${r.year})`).join(' · ')}</div>
+        </div>`;
+      });
+    }
+    h+=`<div class="sec-sub mt-md">Hall of Fame</div>`;
+    let best=[...G.horses,...(G.retired||[]),...allHorses.filter(x=>x.dead&&x.wins>0)].filter((v,i,a)=>a.findIndex(t=>t.id===v.id)===i).sort((a,b)=>b.wins-a.wins).slice(0,10);
+    if(best.length)best.forEach(b=>{
+      h+=`<div class="card" style="padding:8px"><div class="flex-row">
+        <div><strong>${b.name}</strong><div class="text-xs text-muted">${b.coat} ${b.breed}</div></div>
+        <div class="text-xs text-right">🏆 ${b.wins}W/${b.races}R${b.dead?' · 💀':b.retired?' · 🏡':''}</div>
+      </div></div>`;
+    });
+    else h+=`<div class="text-sm text-muted text-center">No champions yet.</div>`;
+    if(G.legacy.wins.length){
+      h+=`<div class="sec-sub mt-md">Recent Wins</div>`;
+      G.legacy.wins.slice().reverse().slice(0,10).forEach(w=>{
+        let isDerby=w.race==='Kentucky Derby';
+        h+=`<div class="card" style="padding:8px;${isDerby?'border-left:4px solid #D4A017':''}">
+          <div class="flex-row"><strong>${isDerby?'👑 ':''} ${w.horse}</strong><span class="money">${money(w.prize)}</span></div>
+          <div class="text-xs text-muted">${w.race} · Year ${w.year}</div>
+        </div>`;
+      });
+    }
+    if(!G.legacy.wins.length)h+=`<div class="empty"><div class="icon">🏆</div>No wins yet. Get racing!</div>`;
+    return h;
+  },
+
+  // ===== HELPERS =====
+  addEvent(t,type){G.events.unshift({text:t,type,year:G.year});if(G.events.length>60)G.events.pop()},
+  toast(m,d){let t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d||2500)},
+  closeModal(ev){if(ev&&ev.target!==$('modal-bg'))return;$('modal-bg').classList.remove('show')},
+  updateUI(){
+    $('money-disp').textContent=money(G.money);$('rep-disp').textContent=G.reputation;
+    let activeHorses=G.horses.filter(h=>!h.retired).length;
+    $('horse-disp').textContent=activeHorses+'/'+RANCH_LEVELS[G.ranchLevel].cap;
+    $('ranch-disp').textContent='Lv'+G.ranchLevel;$('year-disp').textContent='Year '+G.year;G.renderTab();
+  },
+};
+G.initCutscene();
+</script>
+</body>
+</html>
